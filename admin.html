@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CML Admin</title>
+</head>
+  
+<style>
+
+/* ===============================
+   Bell Ringing Animation
+================================ */
+@keyframes ring {
+  0% { transform: rotate(0); }
+  1% { transform: rotate(30deg); }
+  3% { transform: rotate(-28deg); }
+  5% { transform: rotate(34deg); }
+  7% { transform: rotate(-32deg); }
+  9% { transform: rotate(30deg); }
+  11% { transform: rotate(-28deg); }
+  13% { transform: rotate(26deg); }
+  15% { transform: rotate(-24deg); }
+  17% { transform: rotate(22deg); }
+  19% { transform: rotate(-20deg); }
+  21% { transform: rotate(18deg); }
+  23% { transform: rotate(-16deg); }
+  25% { transform: rotate(14deg); }
+  27% { transform: rotate(-12deg); }
+  29% { transform: rotate(10deg); }
+  31% { transform: rotate(-8deg); }
+  33% { transform: rotate(6deg); }
+  35% { transform: rotate(-4deg); }
+  37% { transform: rotate(2deg); }
+  39% { transform: rotate(-1deg); }
+  41% { transform: rotate(1deg); }
+  43% { transform: rotate(0); }
+  100% { transform: rotate(0); }
+}
+
+.ringing::before {
+  animation: ring 1s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+/* ===============================
+   Notification Bell Styling
+================================ */
+.notif-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notif-btn:hover i:not(.ringing),
+.notif-btn:focus i:not(.ringing) {
+  transform: scale(1.1);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+#leadNotifBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px; /* or whatever looks good */
+  height: 20px; /* make it a circle */
+  padding: 0; /* no extra padding */
+  font-size: 1rem; /* adjust as needed */
+  line-height: 1;
+  /* background-color: blue; */
+  color: yellow; 
+}
+
+/* ===============================
+   Badge Pulse Animation
+================================ */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pulse {
+  animation: pulse 5s infinite;
+}
+
+/* ===============================
+   Debug / Extra Styles (optional)
+================================ */
+#navToggler:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#debugBadge button {
+  min-width: 130px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Debug button & error state */
+.debug-btn {
+  all: unset;
+  font-size: 0.75rem;
+  color: #0dcaf0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  background-color: rgba(13, 202, 240, 0.05);
+  backdrop-filter: blur(4px);
+  opacity: 0.15;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: 0 0 3px rgba(13, 202, 240, 0.05);
+}
+
+.debug-btn:hover {
+  opacity: 1;
+  background-color: rgba(13, 202, 240, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 0 8px rgba(13, 202, 240, 0.25);
+}
+
+.debug-btn.error {
+  animation: pulseError 1s infinite alternate;
+}
+
+@keyframes pulseError {
+  from { box-shadow: 0 0 4px rgba(255, 0, 0, 0.3); }
+  to   { box-shadow: 0 0 10px rgba(255, 0, 0, 0.6); }
+}
+
+@media (min-width: 768px) {
+  .navbar-nav .dropdown:hover > .dropdown-menu {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+
+<body class="d-flex flex-column" style="height: 100vh; overflow: hidden;">
+<div id="header-placeholder"></div>
+<iframe id="content-frame" src="dashboard.html"></iframe>
+<div id="footer-placeholder"></div>
+
+<script type="module" src="global.js"></script>
+<script type="module" src="admin.js"></script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  loadInclude("header-placeholder", "header-admin.html", () => {
+    attachDropdownHandlers();
+    setupNavbarCollapseFix();
+    setupNavbarHover();
+
+    // ✅ Bell JS must start AFTER header loads!
+    // checkNewLeads();
+    // setInterval(checkNewLeads, 60000);
+  });
+
+  loadInclude("footer-placeholder", "footer-admin.html");
+});
+
+function loadInclude(id, file, callback) {
+  fetch(file)
+    .then(res => res.text())
+    .then(html => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.innerHTML = html;
+        if (typeof callback === 'function') callback();
+      }
+    });
+}
+
+function attachDropdownHandlers() {
+  document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      bootstrap.Dropdown.getOrCreateInstance(toggle).toggle();
+    });
+  });
+}
+
+function setupNavbarCollapseFix() {
+  document.body.addEventListener('click', (e) => {
+    const navbar = document.querySelector('.navbar-collapse');
+    if (!navbar || !navbar.classList.contains('show')) return;
+
+    const toggle = e.target.closest('.dropdown-toggle');
+    if (toggle) return;
+
+    const link = e.target.closest('.nav-link, .dropdown-item');
+    if (link) {
+      if (link.classList.contains('dropdown-toggle')) return;
+      const bsCollapse = bootstrap.Collapse.getInstance(navbar);
+      if (bsCollapse) bsCollapse.hide();
+      return;
+    }
+
+    if (e.target.closest('.dropdown-menu')) return;
+  });
+}
+
+function setupNavbarHover() {
+  const navbarToggler = document.getElementById('navToggler');
+  const navMenu = document.getElementById('navmenu');
+  if (!navbarToggler || !navMenu) return;
+
+  let hoverTimeout;
+
+  navbarToggler.addEventListener('mouseenter', () => {
+    if (window.getComputedStyle(navbarToggler).display !== 'none') {
+      const bsCollapse = bootstrap.Collapse.getInstance(navMenu)
+        || new bootstrap.Collapse(navMenu, { toggle: false });
+      bsCollapse.show();
+    }
+  });
+
+  navMenu.addEventListener('mouseenter', () => {
+    clearTimeout(hoverTimeout);
+  });
+
+  navbarToggler.addEventListener('mouseleave', () => {
+    hoverTimeout = setTimeout(() => {
+      const bsCollapse = bootstrap.Collapse.getInstance(navMenu);
+      if (bsCollapse) bsCollapse.hide();
+    }, 300);
+  });
+
+  navMenu.addEventListener('mouseleave', () => {
+    hoverTimeout = setTimeout(() => {
+      const bsCollapse = bootstrap.Collapse.getInstance(navMenu);
+      if (bsCollapse) bsCollapse.hide();
+    }, 300);
+  });
+}
+
+function loadPage(page, element) {
+  const frame = document.getElementById('content-frame');
+  if (frame) frame.src = page;
+
+  document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+  if (element) element.classList.add('active');
+}
+
+let lastCount = 0;
+
+// async function checkNewLeads() {
+//   try {
+//     const response = await fetch(`${scriptURL}?system=leads&action=getLeads`);
+//     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+//     const leads = await response.json();
+//     if (!Array.isArray(leads)) return console.warn("⚠️ Leads data not an array");
+
+//     const newLeads = leads.filter(
+//       lead => (lead.Status || lead.status || "").trim().toLowerCase() === "new"
+//     );
+//     const count = newLeads.length;
+
+//     const bell = document.getElementById("leadNotifBtn");
+//     const badge = document.getElementById("leadNotifBadge");
+//     const bellIcon = bell.querySelector("i");
+
+//     if (count > 0) {
+//       badge.textContent = count;
+//       badge.classList.remove("d-none");
+
+//       // Now this will find the span wrapping the icon and add the class
+//       document.querySelector("#leadNotifBtn i").classList.add("ringing");
+
+//       bell.setAttribute("title", `${count} new lead${count === 1 ? "" : "s"}`);
+//     } else {
+//       badge.textContent = "";
+//       badge.classList.add("d-none");
+
+//       document.querySelector("#leadNotifBtn i").classList.remove("ringing");
+
+//       bell.setAttribute("title", "No new leads");
+//     }
+
+//     lastCount = count;
+
+//   } catch (error) {
+//     console.error("❌ Error checking new leads:", error);
+//   }
+// }
+
+function openLeadsPage() {
+  const iframe = document.querySelector("iframe");
+  iframe.src = "leads.html";
+
+  const bell = document.getElementById("leadNotifBtn");
+  const badge = document.getElementById("leadNotifBadge");
+  const bellIcon = bell.querySelector("i");
+
+  badge.textContent = "";
+  badge.classList.add("d-none");
+  bellIcon.classList.remove("ringing");
+  bell.setAttribute("title", "No new leads");
+
+  lastCount = 0;
+}
+
+</script>
+
+</body>
+</html>

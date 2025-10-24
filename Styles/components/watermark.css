@@ -1,0 +1,16 @@
+/* ===============================
+   🖼 WATERMARK
+================================== */
+.watermark {
+  position: fixed;                                           /* 📌 Fixed in place */
+  left: 25%;                                                 /* ⬅️ Center horizontally */
+  width: 50%;                                                /* 📏 Width across middle */
+  height: 100%;                                              /* 📐 Full height */
+  background-image: url('/images/CML-Letterhead-Blue.png');  /* 🖼 Image path */
+  background-size: 75%;                                      /* ✨ Scale image properly */
+  background-position: bottom;                               /* 🔽 Stick to bottom */
+  background-repeat: no-repeat;                              /* 🚫 No repeating */
+  opacity: 0.4;                                              /* 👻 Invisible by default */
+  pointer-events: none;                                      /* 🚫 No interaction */
+  z-index: 1;                                                /* 🔽 Behind everything */
+}

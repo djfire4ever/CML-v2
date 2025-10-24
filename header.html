@@ -1,0 +1,278 @@
+<style>
+/* ============================
+   Desktop Hover (optional)
+   ============================ */
+@media (min-width: 768px) {
+  .navbar-nav .dropdown:hover > .dropdown-menu {
+    display: block; /* only affects desktop hover */
+    animation: fadeIn 0.2s ease-in-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================
+   Base Dropdown Menu Styling
+   (Visual only — no position/display)
+   ============================ */
+.dropdown-menu {
+  background-color: var(--bs-black);
+  border: 1px solid #444;
+  border-radius: 0.75rem;
+  min-width: 220px;
+  padding: 0.5rem 0;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+}
+
+/* ============================
+   Dropdown Item Styling
+   ============================ */
+.dropdown-menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--bs-info);
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  background-color: var(--bs-black);
+}
+
+.dropdown-menu .dropdown-item i {
+  font-size: 1.1rem;
+  color: var(--bs-info);
+  flex-shrink: 0;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: var(--bs-info);
+  color: var(--bs-black);
+  box-shadow: 0 0 8px rgba(13, 202, 240, 0.6);
+  transform: translateX(1px);
+}
+
+.dropdown-menu .dropdown-item:hover i {
+  color: var(--bs-black);
+}
+
+/* ============================
+   Icon + Text Alignment
+   ============================ */
+.navbar-nav .nav-link,
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link i,
+.dropdown-item i {
+  width: 1.25rem;
+  text-align: center;
+}
+
+/* ============================
+   Centered Nav Support (optional)
+   ============================ */
+.navbar-nav.centered-nav {
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.navbar-nav .dropdown-menu {
+  right: 0;
+  left: auto;
+}
+
+</style>
+
+<!-- Navigation Tabs -->
+<nav class="navbar navbar-expand-md bg-black navbar-dark fixed-top">
+  <div class="container-fluid">
+    <a href="index.html" class="navbar-brand text-info">
+      <!-- <img src="https://drive.google.com/thumbnail?id=10PMFJh0Yeoin65J5ub6bkH5RY0wSEdf2&sz=w25" alt="Logo"> -->
+       CraftyMamaaLab
+    </a>
+
+    <button id="navToggler" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+  <div class="collapse navbar-collapse" id="navmenu">
+      
+    <!-- Centered nav links -->
+    <ul class="navbar-nav centered-nav mx-auto">
+
+      <!-- Core -->
+      <li class="nav-item">
+        <a href="#" class="nav-link text-info" onclick="loadPage('dashboard.html', this)">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+      </li>
+
+      <!-- People -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-primary" href="#" role="button">
+          <i class="bi bi-people-fill"></i> People
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('clientmanager.html', this)">
+              <i class="bi bi-person-badge"></i> Clients 🆕
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('leads.html', this)">
+              <i class="bi bi-person-lines-fill"></i> Leads
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Inventory -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-danger" href="#" role="button">
+          <i class="bi bi-box-seam"></i> Inventory
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item text-danger" href="#" onclick="loadPage('materialmanager.html', this)">
+              <i class="bi bi-archive"></i> Materials 🆕
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-danger" href="#" onclick="loadPage('productmanager.html', this)">
+              <i class="bi bi-box-fill"></i> Products
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Sales -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-warning" href="#" role="button">
+          <i class="bi bi-currency-dollar"></i> Sales
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item text-warning" href="#" onclick="loadPage('quotemanager.html', this)">
+              <i class="bi bi-clipboard-check"></i> Quotes
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-warning" href="#" onclick="loadPage('invoicemanager.html', this)">
+              <i class="bi bi-receipt"></i> Invoices / Payments
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- Calendar -->
+      <li class="nav-item">
+          <a href="#" class="nav-link text-success" onclick="loadPage('calendar.html', this)">
+            <i class="bi bi-calendar-week"></i> Calendar
+          </a>
+      </li>
+
+      <!-- Testing -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-primary" href="#" role="button">
+          <i class="bi bi-people-fill"></i> Demo's 🆕
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('test1.html', this)">
+              <i class="bi bi-person-badge"></i> Product Page Demo
+            </a>
+          </li>
+          <!-- <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('test2.html', this)">
+              <i class="bi bi-person-badge"></i> Demo 2
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('test3.html', this)">
+              <i class="bi bi-person-badge"></i> Demo 3
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('test7.html', this)">
+              <i class="bi bi-person-badge"></i> Demo 4
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('test4.html', this)">
+              <i class="bi bi-person-badge"></i> Demo Storefront
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('test5.html', this)">
+              <i class="bi bi-person-badge"></i> Demo Storefront 2
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item text-primary" href="#" onclick="loadPage('test6.html', this)">
+              <i class="bi bi-person-badge"></i> New Product Manager 
+            </a>
+          </li> -->
+        </ul>
+      </li>
+
+
+    </ul>
+
+    <!-- Utility (left-aligned) -->
+    <ul class="navbar-nav ms-auto align-items-left">
+      <!-- ⚙️ Settings Dropdown -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-info" href="#" role="button">
+          ⚙️
+        </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item text-primary" href="#" onclick="loadPage('settings.html', this)">
+                <i class="bi bi-sliders"></i> Settings
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item text-primary" href="#" onclick="loadPage('useruploadform.html', this)">
+                <i class="bi bi-cloud-upload"></i> User Uploads 🆕
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item text-primary" href="#" onclick="loadPage('emailmanager.html', this)">
+                <i class="bi bi-envelope-paper"></i> Emails
+              </a>
+            </li>
+          </ul>
+        </li>
+
+    <!-- 🔔 Leads Notification -->
+      <li class="nav-item">
+        <button id="leadNotifBtn"
+                class="btn btn-link text-primary position-relative notif-btn"
+                onclick="openLeadsPage()"
+                data-bs-toggle="tooltip"
+                title="No new leads">
+          <i class="bi bi-bell fs-5"></i>
+          <span id="leadNotifBadge"
+                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-black d-none"></span>
+        </button>
+      </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script type="module" src="global.js"></script>
+<!-- <script type="module" src="client.js"></script> -->
+<script type="module" src="admin.js"></script>
+
+<script>
+</script>

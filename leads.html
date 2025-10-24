@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads Manager</title>
+  <script defer src="backleads.js"></script>
+</head>
+<body class="theme-dark">
+<!-- <body class="bg-black text-white"> -->
+
+<div class="watermark"></div>
+
+<!-- Toasts -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
+<div class="container py-4">
+  <h2 class="text-center mb-4">Lead Management</h2>
+
+  <!-- Filters and Search -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label for="statusFilter" class="form-label">Filter by Status</label>
+          <select id="statusFilter" class="form-select">
+            <option value="">All</option>
+            <option value="New">New</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Converted">Converted</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="searchBar" class="form-label">Search</label>
+          <input type="text" id="searchBar" class="form-control" placeholder="Search leads...">
+        </div>
+        <div class="col-md-4">
+          <button class="btn w-100" onclick="filterLeads()">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead Table -->
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle" id="leadsTable">
+          <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Name</th> <!-- Concatentated firstName and lastName -->
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Lead Source</th>
+              <th>Status</th>
+              <th>First Contact</th>
+              <th>Last Action</th>
+              <th>Next Followup</th>
+              <th></th> <!-- Actions -->
+            </tr>
+          </thead>
+          <tbody id="leadsTableBody">
+            <!-- Leads will be dynamically inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Log Action Modal HTML -->
+<div class="modal fade" id="logActionModal" tabindex="-1" aria-labelledby="logActionModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logActionModalLabel">Log Lead Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="logActionForm">
+          <div class="mb-3">
+            <label for="actionType" class="form-label">Action Type</label>
+            <select class="form-select" id="actionType" required>
+              <option value="call">Call</option>
+              <option value="email">Email</option>
+              <option value="followup">Follow Up</option>
+              <option value="meeting">Meeting</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="actionNotes" class="form-label">Notes</label>
+            <textarea class="form-control" id="actionNotes" rows="3" required></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label for="customFollowUpInterval" class="form-label">Override Follow-Up Interval (Days)</label>
+            <input type="number" class="form-control" id="customFollowUpInterval" min="1" value="7" placeholder="Enter days">
+          </div>
+          <input type="number" id="followUpInterval" name="followUpInterval" hidden />
+
+          <button type="submit" class="btn">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="global.js"></script>
+<script type="module" src="admin.js"></script>
+
+<script>
+
+  // ✅ Listen for refresh signal
+window.addEventListener("message", function(event) {
+  if (event.origin !== window.location.origin) return; // Safety check (optional but good)
+  if (event.data && event.data.action === "refreshLeads") {
+    console.log("🔄 Refreshing leads list...");
+    loadLeads();
+  }
+});
+
+// On leads.html
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const filterType = params.get("filter"); // "new", "follow-up", "pending"
+
+  if (filterType) {
+    const statusDropdown = document.getElementById("statusFilter");
+    if (statusDropdown) {
+      statusDropdown.value = filterType;
+      filterLeads(); // this function is already in backleads.js
+    }
+  }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) {
+    document.body.classList.add(theme);
+  }
+});
+
+</script>
+</body>
+</html>

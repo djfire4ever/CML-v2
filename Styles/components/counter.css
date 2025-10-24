@@ -1,0 +1,13 @@
+/* ===============================
+   🔢 COUNTER STYLING
+================================== */
+.counter {
+  font-weight: bold;
+  padding: 1px 1px;
+  border-radius: 25px;
+  margin-top: 6px;
+  /* border: 2px solid; */
+  display: inline-block;
+  animation: fadeIn 0.2s ease-in-out;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

@@ -1,0 +1,152 @@
+/* ===============================
+   🔍 SEARCH INPUT
+================================== */
+@media (min-width: 768px) {
+  .news-input {
+    width: 50%;
+  }
+}
+
+#searchInput {
+  border: 2px solid;
+  border-radius: 25px;
+  margin-right: 6px;
+  padding-left: 15px;
+}
+
+#searchInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.1rem rgba(0, 0, 0, 0.25); /* Optional: subtle glow */
+}
+
+/* =======================================
+   🔘 BUTTONS (Dark Theme)
+========================================== */
+.btn {
+  background-color: var(--bs-dark);   /* Themed background */
+  color: var(--bs-light);             /* Themed text color */
+  border-color: var(--bs-dark);       /* Override border none */
+  font-weight: bold;
+}
+
+.btn:hover,
+.btn:focus {
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+  border-color: var(--bs-dark);
+  font-weight: bold;
+}
+
+/* ===========================================
+   📋 Fallback Colors for Search Result Rows
+=========================================== */
+
+/* Search Row Hover — affects text and bg */
+.result-box:hover td,
+.result-box:hover th {
+  background-color: var(--bs-secondary);
+  color: var(--bs-light);
+  font-weight: bold;
+}
+
+/* ✅ Neutral Button */
+.result-box .before-delete-button {
+  background-color: var(--bs-dark);
+  color: var(--bs-light);
+  font-weight: bold;
+}
+
+/* ❌ Danger Button */
+.result-box .delete-button {
+  background-color: var(--bs-warning);
+  color: var(--bs-dark);
+  font-weight: bold;
+}
+
+/* 🔁 Hover Effects — BEFORE delete */
+.result-box .before-delete-button:hover,
+.result-box .before-delete-button:focus {
+  background-color: var(--bs-danger);
+  color: var(--bs-dark);
+  font-weight: bold;
+}
+
+/* 🔁 Hover Effects — CONFIRM delete */
+.result-box .delete-button:hover,
+.result-box .delete-button:focus {
+  background-color: var(--bs-danger);
+  color: var(--bs-dark);
+  border-color: var(--bs-dark);
+  font-weight: bold;
+}
+
+/* ===============================
+   🧾 FORM ELEMENT STRUCTURE
+================================== */
+
+/* Placeholder text styling */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+/* Basic input structure */
+input.form-control,
+input.form-control-sm,
+select.form-select,
+textarea.form-control,
+input[list],
+input.form-control-plaintext {
+  border: 1px solid;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-weight: bold;
+}
+input.form-control[readonly],
+textarea.form-control[readonly] {
+  font-weight: bold;
+}
+
+/* Hover and focus states (structure only) */
+input.form-control:hover,
+select.form-select:hover,
+textarea.form-control:hover,
+input.form-control:focus,
+select.form-select:focus,
+textarea.form-control:focus {
+  border: 1px solid;
+  outline: none;
+  box-shadow: none;
+  font-weight: bold;
+}
+
+/* Input group text layout */
+.input-group-text,
+.input-group .form-control {
+  border: 1px solid;
+  font-weight: bold;
+}
+
+/* Labels */
+label,
+.form-label {
+  font-weight: bold;
+  text-align: left !important;
+  display: block;
+}
+
+.btn {
+  border: none;
+  border-radius: 0.375rem; /* Optional: if you want consistent button shape */
+  outline: none;
+  font-weight: bold;
+}
+
+.btn:hover,
+.btn:focus {
+  border-style: solid;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem transparent; /* placeholder for theme to override */
+}

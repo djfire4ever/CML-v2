@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material Manager</title>
+  <style>
+  </style>
+</head>
+<body class="page-body" style="min-height:100vh;" data-element="page-bg">
+<div class="watermark"></div>
+<!-- Notification Toasts -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+<!-- Loader -->
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<div class="container" data-element="main-container">
+  <h2 class="text-center mb-3" data-element="page-title">Materials Management</h2>
+
+  <!-- 🔍 Search + Counters -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="input-group w-50">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search materials...">
+    </div>
+    <div class="d-flex gap-3">
+      <span class="badge bg-primary">Total: <span id="totalCounter">0</span></span>
+      <span class="badge bg-danger">Found: <span id="searchCounter">0</span></span>
+    </div>
+  </div>
+
+  <!-- 🔧 Accordion for Materials -->
+  <div class="accordion" id="materialsAccordion">
+
+  <!-- ➕ Add New Material Accordion Card -->
+  <div class="accordion-item border-info">
+    <h2 class="accordion-header" id="heading-addMaterial">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-addMaterial" aria-expanded="false" aria-controls="collapse-addMaterial">
+        ➕ Add New Material
+      </button>
+    </h2>
+    <div id="collapse-addMaterial" class="accordion-collapse collapse" aria-labelledby="heading-addMaterial" data-bs-parent="#materialsAccordion">
+      <div class="accordion-body">
+        <form id="addMaterialFormAccordion">
+
+          <!-- ===== Material Info Section ===== -->
+          <fieldset class="mb-1 p-2 border rounded border-info">
+            <legend class="small fw-bold mb-0">
+              <div class="row w-100 gx-2 align-items-center">
+                <div class="col-6">Material Details</div>
+                <div class="col-2 text-truncate">ID # TBD</div>
+                <div class="col-4 text-truncate text-end">Date: <span id="addMaterialDate"></span></div>
+              </div>
+            </legend> 
+            <div class="row gx-3 gy-1 align-items-center mt-2">
+              <div class="col-md-6">
+                <label for="matName">Name</label>
+                <input type="text" class="form-control form-control-sm matName-input" id="matName">
+              </div>
+              <div class="col-md-6">
+                <label for="supplier">Supplier</label>
+                <input type="text" class="form-control form-control-sm supplier-input" id="supplier">
+              </div>
+            </div>
+            <div class="row gx-3 gy-1 align-items-center mt-1">
+              <div class="col-md-6">
+                <label for="supplierUrl">Supplier URL</label>
+                <input type="text" class="form-control form-control-sm supplierUrl-input" id="supplierUrl">
+              </div>
+              <div class="col-md-3">
+                <label for="unitType">Unit Type</label>
+                <input type="text" class="form-control form-control-sm unitType-input" id="unitType" list="unit-type-options">
+                <datalist id="unit-type-options"></datalist>
+              </div>
+              <div class="col-md-3">
+                <label for="matPrice">Price</label>
+                <input type="text" class="form-control form-control-sm matPrice-input" id="matPrice">
+              </div>
+            </div>
+            <div class="row gx-3 gy-1 align-items-center mt-1">
+              <div class="col-md-3">
+                <label for="unitQty">Unit Qty</label>
+                <input type="text" class="form-control form-control-sm unitQty-input" id="unitQty">
+              </div>
+              <div class="col-md-3">
+                <label for="unitPrice">Unit Price</label>
+                <input type="text" class="form-control form-control-sm unitPrice-input" id="unitPrice" readonly>
+              </div>
+              <div class="col-md-3">
+                <label for="onHand">On Hand</label>
+                <input type="text" class="form-control form-control-sm onHand-input" id="onHand">
+              </div>
+              <div class="col-md-3">
+                <label for="reorderLevel">Reorder Level</label>
+                <input type="text" class="form-control form-control-sm reorderLevel-input" id="reorderLevel">
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ===== Buttons ===== -->
+          <div class="d-flex gap-1 mt-2">
+            <button type="submit" class="btn btn-success btn-sm rounded-pill">
+              <i class="bi bi-check me-1"></i> Save
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm rounded-pill" id="addCancelBtn">
+              <i class="bi bi-x me-1"></i> Cancel
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  </div> <!-- End materialsAccordion -->
+
+  <!-- 🔍 Search Results Accordion -->
+  <div class="accordion mt-3" id="materialsSearchResults"></div>
+
+  <!-- Template for dynamic material rows -->
+  <template id="rowTemplate">
+    <div class="accordion-item material-row border-info">
+      <!-- Accordion Header -->
+      <h2 class="accordion-header" id="heading-MATID">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapse-MATID"
+                aria-expanded="false"
+                aria-controls="collapse-MATID">
+          <div class="row w-100 text-truncate align-items-center gx-2">
+            <div class="col-5 text-truncate fw-bold matName"></div>
+            <div class="col-3 text-truncate supplier"></div>
+            <div class="col-2 text-end matPrice"></div>
+            <div class="col-2 text-end onHand"></div>
+          </div>
+        </button>
+      </h2>
+
+      <!-- Accordion Body -->
+      <div id="collapse-MATID" 
+          class="accordion-collapse collapse" 
+          aria-labelledby="heading-MATID" 
+          data-bs-parent="#materialsSearchResults">
+        <div class="accordion-body">
+          <div class="container">
+
+            <!-- ===== Material Info Section ===== -->
+            <fieldset class="mb-2 p-2 border rounded border-info">
+              <legend class="small fw-bold mb-0">
+                <div class="row w-100 gx-2 align-items-center">
+                  <div class="col-6">Material Details</div>
+                  <div class="col-2 text-truncate"><span class="matID">ID #</span></div>
+                  <div class="col-4 text-truncate text-end"><span class="lastUpdated">Last Updated: </span></div>
+                </div>
+              </legend>
+
+              <!-- ===== Material Info Section ===== -->
+              <div class="row gx-3 gy-1 align-items-center mt-2">
+                <div class="col-md-6">
+                  <label class="form-label">Name</label>
+                  <span class="matName"></span>
+                  <input type="text" class="form-control form-control-sm matName-input d-none">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Supplier</label>
+                  <span class="supplier"></span>
+                  <input type="text" class="form-control form-control-sm supplier-input d-none">
+                </div>
+              </div>
+
+              <div class="row gx-3 gy-1 align-items-center mt-1">
+                <div class="col-md-6">
+                  <label class="form-label">Supplier URL</label>
+                  <span class="supplierUrl"></span>
+                  <input type="text" class="form-control form-control-sm supplierUrl-input d-none">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Unit Type</label>
+                  <span class="unitType"></span>
+                  <input type="text" class="form-control form-control-sm unitType-input d-none" list="unit-type-options">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Price</label>
+                  <span class="matPrice"></span>
+                  <input type="text" class="form-control form-control-sm matPrice-input d-none">
+                </div>
+              </div>
+
+              <div class="row gx-3 gy-1 align-items-center mt-1">
+                <div class="col-md-3">
+                  <label class="form-label">Unit Qty</label>
+                  <span class="unitQty"></span>
+                  <input type="text" class="form-control form-control-sm unitQty-input d-none">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Unit Price</label>
+                  <span class="unitPrice"></span>
+                  <input type="text" class="form-control form-control-sm unitPrice-input d-none" readonly>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">On Hand</label>
+                  <span class="onHand"></span>
+                  <input type="text" class="form-control form-control-sm onHand-input d-none">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Reorder Level</label>
+                  <span class="reorderLevel"></span>
+                  <input type="text" class="form-control form-control-sm reorderLevel-input d-none">
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="alert alert-warning py-1 my-1 border-black text-warning d-none reorder-alert" role="alert">
+              ⚠️ Stock below reorder level!
+            </div>
+
+            <!-- ===== Buttons Section ===== -->
+            <div class="d-flex gap-1 mt-2">
+              <div class="d-flex gap-1">
+                <button type="button" class="btn btn-warning btn-sm rounded-pill edit-button">
+                  <i class="bi bi-pencil me-1"></i> Edit
+                </button>
+                <button type="button" class="btn btn-success btn-sm rounded-pill save-button d-none" disabled>
+                  <i class="bi bi-check me-1"></i> Save
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm rounded-pill cancel-button d-none">
+                  <i class="bi bi-x me-1"></i> Cancel
+                </button>
+                <!-- Button Group in template -->
+                <div class="d-flex gap-1">
+                  <button type="button" class="btn btn-outline-danger btn-sm rounded-pill before-delete-button" data-button-state="delete">
+                    Delete
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm rounded-pill delete-button d-none">
+                    Confirm
+                  </button>
+                </div>
+              </div>
+
+              <div class="d-flex gap-1 ms-auto align-items-center">
+                <button type="button" class="btn btn-primary btn-sm rounded-pill receive-delivery-btn">
+                  <i class="bi bi-box-seam me-1"></i> Receive Delivery
+                </button>
+                <input type="number" class="form-control form-control-sm d-none incomingPkg-qty-input text-center" placeholder="Qty" style="width: 4rem;" min="1">
+                <button type="button" class="btn btn-success btn-sm rounded-pill confirm-delivery-btn d-none">
+                  <i class="bi bi-check me-1"></i> Confirm
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div>
+
+<script type="module" src="global.js"></script>
+<!-- <script type="module" src="client.js"></script> -->
+<script type="module" src="admin.js"></script>
+<script src="materialmanager.js"></script>
+
+<script>
+
+// Function to open the URL in a new tab
+function openUrl() {
+  const url = document.getElementById('edit-supplierUrl').value.trim();
+  
+  if (url && !/^https?:\/\//i.test(url)) {
+    // If URL is valid but doesn't start with https://, add it.
+    window.open('https://' + url, '_blank');
+  } else if (url) {
+    // If it's already valid, open it.
+    window.open(url, '_blank');
+  }
+}
+
+// Attach the function to the button click event
+// document.getElementById('openSupplierUrlBtn').addEventListener('click', openUrl);
+
+function setupDynamicNavigation() {
+  function activateTabFromHash() {
+    var hash = window.location.hash;
+    if (!hash) return;
+
+    var targetTabButton = document.querySelector('[data-bs-target="' + hash + '"]');
+    if (targetTabButton) {
+      var tab = new bootstrap.Tab(targetTabButton);
+      tab.show();
+    }
+  }
+
+  // Use window.onload for full page load
+  window.onload = function() {
+    activateTabFromHash();  // Ensures tab switch happens after everything is loaded
+  };
+
+  window.addEventListener('hashchange', activateTabFromHash);
+}
+
+setupDynamicNavigation();
+
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) {
+    document.body.classList.add(theme);
+  }
+});
+
+</script>
+    
+
+</body>
+</html>
+

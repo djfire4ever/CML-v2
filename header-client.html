@@ -1,0 +1,138 @@
+<style>
+/* ============================ */
+/* Navbar Enhancements + Cleanup */
+/* ============================ */
+
+html { scroll-behavior: smooth; }
+
+.navbar { backdrop-filter: blur(6px); transition: background-color 0.3s ease; }
+.navbar.scrolled { background-color: rgba(0, 0, 0, 0.9) !important; }
+
+.navbar-brand { font-weight: 600; letter-spacing: 0.5px; }
+
+.navbar-nav .nav-link { color: var(--bs-info); font-weight: 500; transition: color 0.2s ease, transform 0.2s ease; display: flex; align-items: center; gap: 0.5rem; }
+.navbar-nav .nav-link:hover { color: var(--bs-primary); transform: translateY(-1px); }
+.navbar-nav .nav-link.active { color: var(--bs-primary) !important; text-shadow: 0 0 6px rgba(13, 202, 240, 0.6); }
+
+.nav-link i, .dropdown-item i { width: 1.25rem; text-align: center; }
+
+/* ============================ */
+/* Dropdown Menus */
+/* ============================ */
+
+@media (min-width: 768px) { .navbar-nav .dropdown:hover > .dropdown-menu { display: block; animation: fadeIn 0.2s ease-in-out; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.dropdown-menu { background-color: var(--bs-black); border: 1px solid #444; border-radius: 0.75rem; min-width: 220px; padding: 0.5rem 0; box-shadow: 0 0 12px rgba(0, 255, 255, 0.05); transition: all 0.2s ease; right: 0; left: auto; }
+
+.dropdown-menu .dropdown-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.6rem 1.2rem; font-size: 0.95rem; font-weight: 500; color: var(--bs-info); border-radius: 0.375rem; transition: all 0.2s ease; background-color: var(--bs-black); }
+.dropdown-menu .dropdown-item i { font-size: 1.1rem; color: var(--bs-info); flex-shrink: 0; }
+.dropdown-menu .dropdown-item:hover { background-color: var(--bs-info); color: var(--bs-black); box-shadow: 0 0 8px rgba(13, 202, 240, 0.6); transform: translateX(1px); }
+.dropdown-menu .dropdown-item:hover i { color: var(--bs-black); }
+
+/* ============================ */
+/* Layout & Centering Support */
+/* ============================ */
+
+.navbar-nav.centered-nav { flex-grow: 1; justify-content: center; }
+
+.navbar-toggler { border: none; outline: none; }
+.navbar-toggler:focus { box-shadow: none; }
+
+@media (max-width: 767px) {
+  .navbar-nav .dropdown-menu { position: static; float: none; box-shadow: none; border: none; background-color: transparent; }
+  .dropdown-menu .dropdown-item { background-color: transparent; color: var(--bs-info); padding-left: 2rem; }
+  .dropdown-menu .dropdown-item:hover { background-color: var(--bs-dark); color: var(--bs-primary); transform: none; box-shadow: none; }
+}
+</style>
+
+<body class="bg-black text-info">
+
+<!-- Header Start -->
+<nav class="navbar navbar-expand-md bg-black navbar-dark fixed-top">
+  <div class="container-fluid">
+
+    <!-- Brand -->
+    <a href="#" class="navbar-brand text-info" onclick="parent.loadPage('main-client.html', this)">
+      <!-- <img src="https://drive.google.com/thumbnail?id=10PMFJh0Yeoin65J5ub6bkH5RY0wSEdf2&sz=w25" alt="Logo"> -->
+      CraftyMamaaLab
+    </a>
+
+    <!-- Toggler -->
+    <button id="navToggler" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menu -->
+    <div class="collapse navbar-collapse" id="navmenu">
+      <ul class="navbar-nav centered-nav mx-auto">
+
+        <!-- Core Links -->
+        <li class="nav-item">
+          <a href="#" class="nav-link text-info" onclick="parent.loadPage('main-client.html', this)">
+            <i class="bi bi-house-door"></i> Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link text-info" onclick="parent.loadPage('showcase.html', this)">
+            <i class="bi bi-images"></i> Showcase
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link text-info" onclick="parent.loadPage('events.html', this)">
+            <i class="bi bi-calendar-event"></i> Events
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link text-info" onclick="parent.loadPage('productcatalog.html', this)">
+            <i class="bi bi-bag"></i> Products
+          </a>
+        </li>
+
+        <!-- Info Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-primary" href="#" role="button">
+            <i class="bi bi-info-circle"></i> Info
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="#" class="dropdown-item text-primary" onclick="parent.loadPage('#learn', this)">
+                <i class="bi bi-lightbulb"></i> Why Us?
+              </a>
+            </li>
+            <li>
+              <a href="#" class="dropdown-item text-primary" onclick="parent.loadPage('#faq', this)">
+                <i class="bi bi-chat-dots"></i> FAQ’s
+              </a>
+            </li>
+            <li>
+              <a href="#" class="dropdown-item text-primary" onclick="parent.loadPage('#meetus', this)">
+                <i class="bi bi-people"></i> About Us
+              </a>
+            </li>
+            <li>
+              <a href="#" class="dropdown-item text-primary" onclick="parent.loadPage('#contact', this)">
+                <i class="bi bi-envelope"></i> Contact Us
+              </a>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+
+      <!-- Right-Aligned Utility Nav -->
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+          <a href="admin.html" class="nav-link text-info">
+            <i class="bi bi-person-gear"></i> Admin
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- Header End -->
+
+<!-- <script src="frontleads.js"></script> -->
+
+</body>

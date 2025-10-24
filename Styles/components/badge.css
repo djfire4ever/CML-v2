@@ -1,0 +1,52 @@
+#debugBadge button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+  background-color: transparent;
+  border-color: transparent;
+  color: #0dcaf0; /* info blue */
+}
+
+#debugBadge button:hover {
+  opacity: 1;
+  background-color: rgba(13, 202, 240, 0.1);
+  border-color: #0dcaf0;
+  cursor: pointer;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+#debugBadge.pulse button {
+  animation: pulse 2s infinite;
+}
+
+#debugBadge {
+  display: none;
+}
+
+/* Subtle debug button styling */
+.debug-btn {
+  all: unset;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.6rem;
+  background-color: rgba(13, 202, 240, 0.08); /* soft info blue background */
+  color: #0dcaf0;
+  border-radius: 0.4rem;
+  opacity: 0.35;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-shadow: 0 0 3px rgba(13, 202, 240, 0.15);
+  backdrop-filter: blur(2px);
+}
+
+.debug-btn:hover {
+  opacity: 1;
+  background-color: rgba(13, 202, 240, 0.15);
+  box-shadow: 0 0 6px rgba(13, 202, 240, 0.3);
+  transform: translateY(-1px);
+  cursor: pointer;
+}

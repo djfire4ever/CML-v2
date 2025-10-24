@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CraftyMamaaLab</title>
+</head>
+<body class="bg-black">
+<div class="watermark"></div>
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<div id="header-placeholder"></div>
+<iframe id="client-content-frame" src="main-client.html" style="width:100%; height:calc(100vh - 120px); border:none;"></iframe>
+<div id="footer-placeholder"></div>
+
+<script type="module" src="global.js"></script>
+<script type="module" src="client.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  loadInclude("header-placeholder", "header-client.html", () => {
+    setupNavbarCollapseFix();
+    setupNavbarHover();
+  });
+
+  loadInclude("footer-placeholder", "footer-client.html");
+});
+
+function loadInclude(id, file, callback) {
+  fetch(file)
+    .then(res => res.text())
+    .then(html => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.innerHTML = html;
+        if (typeof callback === 'function') callback();
+      }
+    });
+}
+
+function setupNavbarCollapseFix() {
+  document.body.addEventListener('click', (e) => {
+    const navbar = document.querySelector('.navbar-collapse');
+    if (!navbar || !navbar.classList.contains('show')) return;
+
+    const toggle = e.target.closest('.dropdown-toggle');
+    if (toggle) return;
+
+    const link = e.target.closest('.nav-link, .dropdown-item');
+    if (link) {
+      if (link.classList.contains('dropdown-toggle')) return;
+      const bsCollapse = bootstrap.Collapse.getInstance(navbar);
+      if (bsCollapse) bsCollapse.hide();
+      return;
+    }
+
+    if (e.target.closest('.dropdown-menu')) return;
+  });
+}
+
+function setupNavbarHover() {
+  const navbarToggler = document.getElementById('navToggler');
+  const navMenu = document.getElementById('navmenu');
+  if (!navbarToggler || !navMenu) return;
+
+  let hoverTimeout;
+
+  navbarToggler.addEventListener('mouseenter', () => {
+    if (window.getComputedStyle(navbarToggler).display !== 'none') {
+      const bsCollapse = bootstrap.Collapse.getInstance(navMenu)
+        || new bootstrap.Collapse(navMenu, { toggle: false });
+      bsCollapse.show();
+    }
+  });
+
+  navMenu.addEventListener('mouseenter', () => {
+    clearTimeout(hoverTimeout);
+  });
+
+  navbarToggler.addEventListener('mouseleave', () => {
+    hoverTimeout = setTimeout(() => {
+      const bsCollapse = bootstrap.Collapse.getInstance(navMenu);
+      if (bsCollapse) bsCollapse.hide();
+    }, 300);
+  });
+
+  navMenu.addEventListener('mouseleave', () => {
+    hoverTimeout = setTimeout(() => {
+      const bsCollapse = bootstrap.Collapse.getInstance(navMenu);
+      if (bsCollapse) bsCollapse.hide();
+    }, 300);
+  });
+}
+
+function loadPage(pageOrAnchor, el) {
+  const frame = document.getElementById('client-content-frame');
+  if (!frame) return;
+
+  // Helper: smooth scroll inside iframe
+  const smoothScrollInFrame = (hash) => {
+    try {
+      const frameDoc = frame.contentDocument || frame.contentWindow.document;
+      const target = frameDoc.querySelector(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (e) {
+      console.warn('Smooth scroll failed:', e);
+    }
+  };
+
+  // If it's an anchor link (e.g., #faq, #contact)
+  if (pageOrAnchor.startsWith('#')) {
+    const targetAnchor = pageOrAnchor;
+
+    // Check if iframe already has the main client page loaded
+    const frameWin = frame.contentWindow;
+    const currentPath = frameWin?.location?.pathname || '';
+
+    if (currentPath.endsWith('main-client.html')) {
+      // If already on the right page, scroll smoothly
+      smoothScrollInFrame(targetAnchor);
+    } else {
+      // If not, load it first and scroll after it finishes loading
+      frame.src = 'main-client.html';
+      frame.onload = () => smoothScrollInFrame(targetAnchor);
+    }
+
+  } else {
+    // Otherwise, load a new page into iframe
+    frame.src = pageOrAnchor;
+  }
+
+  // Manage active link state (optional)
+  document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User File Upload</title>
+<style>
+  .page-container {
+    border: 0;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 800px;
+    width: 90%;
+    margin: 2rem auto;
+    background-color: var(--bs-black);
+    color: var(--bs-info);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  }
+  #greeting { margin-bottom: 1rem; }
+  .upload-section {
+    border: 2px solid var(--bs-info);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    background-color: var(--bs-black);
+  }
+  .file-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+  }
+  .file-preview {
+    width: 60px; height: 60px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:2rem;
+    border:1px solid var(--bs-info);
+    border-radius:6px; overflow:hidden; margin-bottom:0.5rem;
+  }
+  .progress { height: 22px; border-radius: 6px; background: rgba(255,255,255,0.1); margin-top:0.5rem; }
+  .progress-bar { background-color: var(--bs-info) !important; font-weight:bold; color:var(--bs-black); }
+  #uploadBtn { border-radius: 6px; padding: 0.75rem 1.5rem; font-weight:bold; }
+  #uploadBtn:disabled { opacity:0.6; cursor:not-allowed; }
+</style>
+</head>
+<body class="page-body" style="min-height:100vh;" data-element="page-bg">
+<div class="watermark"></div>
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<div class="page-container">
+  <h3>Good morning 🌞, please upload up to 5 files.</h3>
+  <h6>This has been optimized for mobile so you can upload any files from your phone.</h6>
+<br>
+  <!-- User dropdown -->
+  <div class="mb-3">
+    <label for="userSelect" class="form-label">Select Your Name</label>
+    <select id="userSelect" class="form-select">
+      <option value="">-- Choose a user --</option>
+      <option value="Tiffany">Tiffany</option>
+      <option value="Felix">Tio</option>
+    </select>
+  </div>
+
+  <div id="alertsContainer" class="mb-3"></div>
+
+  <div class="upload-section">
+    <input type="file" id="multiFileInput" class="form-control mb-3" multiple accept="*/*">
+    <div id="fileContainer"></div>
+  </div>
+
+  <div class="text-center mt-3">
+    <button id="uploadBtn" class="btn btn-primary" disabled>Upload Files</button>
+  </div>
+</div>
+
+<script type="module" src="global.js"></script>
+<!-- <script type="module" src="client.js"></script> -->
+<script type="module" src="admin.js"></script>
+
+<script>
+const maxFiles = 5;
+let filesArray = [];
+const fileContainer = document.getElementById("fileContainer");
+const uploadBtn = document.getElementById("uploadBtn");
+const alertsContainer = document.getElementById("alertsContainer");
+const multiFileInput = document.getElementById("multiFileInput");
+const userSelect = document.getElementById("userSelect");
+
+function updateUploadButton() {
+  uploadBtn.disabled = !filesArray.length || !userSelect.value;
+}
+
+function getFileIcon(fileName) {
+  const ext = fileName.split('.').pop().toLowerCase();
+  const icons = { pdf:'📄', doc:'📄', docx:'📄', txt:'📝', xls:'📊', xlsx:'📊', csv:'📊', ppt:'📈', pptx:'📈', default:'📁' };
+  return icons[ext] || icons.default;
+}
+
+// Add file card
+function addFileCard(fileObj) {
+  if (filesArray.length >= maxFiles) return;
+  filesArray.push(fileObj);
+
+  const div = document.createElement("div");
+  div.className = "file-item";
+  div.innerHTML = `
+    <div style="display:flex; gap:1rem; justify-content:space-between; align-items:flex-start;">
+      <div style="flex:1;">
+        <input type="text" class="form-control file-note" placeholder="Optional note (purpose of this file)">
+        <div class="progress mt-2"><div class="progress-bar" style="width:0%">Waiting...</div></div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div class="file-preview"></div>
+        <button type="button" class="btn btn-sm btn-outline-danger mt-1 removeFileBtn">Remove</button>
+      </div>
+    </div>
+  `;
+
+  const preview = div.querySelector(".file-preview");
+  const noteInput = div.querySelector(".file-note");
+  const removeBtn = div.querySelector(".removeFileBtn");
+
+  if (fileObj.file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = ev => preview.innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:100%;">`;
+    reader.readAsDataURL(fileObj.file);
+  } else {
+    preview.innerHTML = `<span>${getFileIcon(fileObj.file.name)}</span>`;
+  }
+
+  noteInput.addEventListener("input", e => fileObj.note = e.target.value);
+  removeBtn.addEventListener("click", () => {
+    filesArray = filesArray.filter(f => f !== fileObj);
+    div.remove();
+    updateUploadButton();
+  });
+
+  fileContainer.appendChild(div);
+  updateUploadButton();
+}
+
+// File selection
+multiFileInput.addEventListener("change", e => {
+  Array.from(e.target.files).forEach(file => {
+    if (filesArray.length < maxFiles) addFileCard({ file, note: "" });
+  });
+  multiFileInput.value = "";
+});
+
+// User selection
+userSelect.addEventListener("change", updateUploadButton);
+
+// Upload
+uploadBtn.addEventListener("click", async () => {
+  const selectedUser = userSelect.value;
+  if (!selectedUser) {
+    showToast("Please select your name before uploading.", "warning"); // restored toast
+    return;
+  }
+
+  toggleLoader(true); // restored loader
+
+  let anyFailed = false;
+
+  for (let i = 0; i < filesArray.length; i++) {
+    const { file, note } = filesArray[i];
+    if (!file) continue;
+
+    const progressBar = fileContainer.children[i].querySelector(".progress-bar");
+    progressBar.style.width = "0%";
+    progressBar.textContent = "Uploading...";
+
+    try {
+      const reader = new FileReader();
+      await new Promise((resolve, reject) => {
+        reader.onload = async e => {
+          const base64Data = e.target.result.split(',')[1];
+          const payload = {
+            system: "userUploads",
+            action: "userUploadFile",
+            userName: selectedUser,
+            fileName: sanitizeForFilename(`${selectedUser}_${note ? note + "_" : ""}${file.name}`),
+            fileData: base64Data
+          };
+
+          const res = await fetch(scriptURL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          let result;
+          try { result = await res.json(); } catch { result = { success: false }; }
+
+          if (result.success) {
+            progressBar.classList.add("bg-success");
+            progressBar.style.width = "100%";
+            progressBar.textContent = "Uploaded ✓";
+          } else {
+            anyFailed = true;
+            progressBar.classList.add("bg-danger");
+            progressBar.style.width = "100%";
+            progressBar.textContent = "Failed ❌";
+          }
+          resolve();
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    } catch {
+      anyFailed = true;
+      progressBar.classList.add("bg-danger");
+      progressBar.style.width = "100%";
+      progressBar.textContent = "Error ❌";
+    }
+  }
+
+  toggleLoader(false); // restored loader
+
+  if (!anyFailed) {
+    showToast("All files uploaded successfully!", "success"); // restored toast
+    uploadBtn.disabled = true;
+  } else {
+    showToast("Some files failed to upload.", "danger"); // restored toast
+  }
+});
+
+function sanitizeForFilename(name) {
+  return name.trim().replace(/\s+/g, "_").replace(/[^\w\-.]/g, "");
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) document.body.classList.add(theme);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Manager</title>
+</head>
+<style>
+  /* Modern button hover/focus effects */
+.client-row .btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.client-row .btn:hover, 
+.client-row .btn:focus {
+  transform: translateY(-2px);       /* slight lift */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* subtle shadow */
+}
+.tier-icon-bg {
+  pointer-events: none; /* allows clicks to pass through */
+}
+/* Use Bootstrap’s info color for placeholders */
+input::placeholder,
+textarea::placeholder {
+  color: var(--bs-info);
+  opacity: 1; /* ensures full brightness */
+}
+#clientsSearchResults .form-control::placeholder { color: var(--bs-info); opacity: .5; }
+</style>
+
+<body class="page-body" style="min-height:100vh;" data-element="page-bg">
+<!-- 💧 Watermark -->
+<div class="watermark"></div>
+<!-- 🔔 Toast Notifications -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<!-- ⏳ Loader -->
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<div class="container" data-element="main-container">
+  <h2 class="text-center mb-3" data-element="page-title">Client Management</h2>
+
+  <!-- 🔍 Search + Counters -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="input-group w-50">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search clients...">
+    </div>
+    <div class="d-flex gap-3">
+      <span class="badge bg-primary">Total: <span id="totalCounter">0</span></span>
+      <!-- <span class="badge bg-success">Active: <span id="activeCounter">0</span></span> -->
+      <span class="badge bg-danger">Found: <span id="searchCounter">0</span></span>
+    </div>
+    <button id="clearTierFilterBtn" class="btn btn-sm btn-outline-light ms-2">Show All</button>
+  </div>
+
+  <!-- 🔍 Search Results Accordion -->
+  <div class="accordion mt-3" id="clientsSearchResults"></div>
+
+  <!-- Template for dynamic client rows (refactored to ProductManager style) -->
+  <template id="rowTemplate">
+    <div class="accordion-item client-row border-info">
+      <!-- Accordion Header (multi-column like ProductManager) -->
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse">
+          <div class="row w-100 text-truncate align-items-center gx-2">
+            <div class="col-3 clientID-header"></div>
+            <div class="col-8 text-truncate fw-bold clientName-header"></div>
+            <div class="col-1 text-center tier-header"></div>
+          </div>
+        </button>
+      </h2>
+
+      <!-- Accordion Body -->
+      <div class="accordion-collapse collapse">
+        <div class="accordion-body">
+
+          <!-- ===== Unified Client Information Fieldset ===== -->
+          <fieldset id="clientInfoFieldset" class="mb-2 p-2 border rounded border-info">
+            <div class="d-flex flex-wrap justify-content-start align-items-start gap-3">
+
+            <!-- Left Column: Icon Background + Names + Tier Dropdown -->
+            <div id="clientIconColumn"
+                class="position-relative d-flex flex-column justify-content-center align-items-center ps-1 pe-3 rounded border-end border-2 border-info shadow"
+                style="width:250px; min-height:250px; overflow:hidden; background:rgba(255,255,255,0.02);">
+
+              <!-- Icon Background -->
+              <i class="bi bi-award tier-icon-bg position-absolute"
+                style="font-size:14rem; opacity:0.45; z-index:0;"></i>
+
+              <!-- Foreground: Client Name Fields -->
+              <div class="position-relative z-1 w-100 mt-2 d-flex flex-column justify-content-center align-items-center text-warning">
+                <!-- First Name -->
+                <div class="mb-1 text-center w-100">
+                  <span class="firstName d-block mb-2 fw-bold fs-5">FIRSTNAME</span>
+                  <input type="text" class="form-control form-control-sm firstName-input d-none" placeholder="First name" value="FIRSTNAME" title="Enter first name">
+                </div>
+                <!-- Nick Name -->
+                <div class="mb-1 text-center w-100">
+                  <span class="nickName d-block mb-2 fw-bold fs-5">NICKNAME</span>
+                  <input type="text" class="form-control form-control-sm nickName-input d-none" placeholder="Nickname (optional)" value="NICKNAME" title="Optional nickname">
+                </div>
+                <!-- Last Name -->
+                <div class="mb-1 text-center w-100">
+                  <span class="lastName d-block fw-bold fs-5">LASTNAME</span>
+                  <input type="text" class="form-control form-control-sm lastName-input d-none" placeholder="Last name" value="LASTNAME" title="Enter last name">
+                </div>
+              </div>
+
+              <!-- Tier Dropdown -->
+              <div class="mt-auto w-100 px-1 mb-2 text-center text-warning">
+                <span class="tier d-none" data-tier-id="0">New</span>
+                <select class="form-select form-select-sm tier-input d-none" title="Select tier" style="width:100%;">
+                  <option value="" disabled selected hidden>Select tier...</option>
+                  <option value="New">New</option>
+                  <option value="Silver">Silver</option>
+                  <option value="Gold">Gold</option>
+                  <option value="Platinum">Platinum</option>
+                </select>
+              </div>
+
+            </div>
+
+              <!-- Right Column: Contact & Address Fields -->
+              <div id="clientDetailsColumn" class="d-flex flex-column flex-grow-1 ps-3" style="width:220px;">
+                <div class="row gx-3 gy-3 text-warning">
+
+                  <!-- Phone -->
+                  <div class="col-md-6">
+                    <label class="form-label text-info mb-0">Phone</label>
+                    <span class="clientID d-block">PHONE</span>
+                    <input type="text" class="form-control form-control-sm clientID-input d-none" placeholder="digits only" value="PHONE" title="Phone number required">
+                  </div>
+
+                  <!-- Email -->
+                  <div class="col-md-6">
+                    <label class="form-label text-info mb-0">Email</label>
+                    <span class="email d-block">EMAIL</span>
+                    <input type="email" class="form-control form-control-sm email-input d-none" placeholder="email@example.com" value="EMAIL" title="Valid email required">
+                  </div>
+
+                  <!-- Street -->
+                  <div class="col-md-12">
+                    <label class="form-label text-info mb-0">Street</label>
+                    <span class="street d-block">STREET</span>
+                    <input type="text" class="form-control form-control-sm street-input d-none" placeholder="123 Main St" value="STREET" title="Street address required">
+                  </div>
+
+                  <!-- City / State / Zip -->
+                  <div class="col-md-6">
+                    <label class="form-label text-info mb-0">City</label>
+                    <span class="city d-block">CITY</span>
+                    <input type="text" class="form-control form-control-sm city-input d-none" placeholder="City" value="CITY" title="City required">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label text-info mb-0">State</label>
+                    <span class="state d-block">STATE</span>
+                    <input type="text" class="form-control form-control-sm state-input d-none" placeholder="ST" value="STATE" title="State required">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-info mb-0">Zip</label>
+                    <span class="zip d-block">ZIP</span>
+                    <input type="text" class="form-control form-control-sm zip-input d-none" placeholder="12345" value="ZIP" title="Zip code required">
+                  </div>
+
+                <div class="row gx-3 gy-2 mt-2">
+                  <!-- Member Since -->
+                  <div class="col-md-6">
+                    <label class="form-label text-info mb-0">Member Since</label>
+                    <span class="memberSince d-block">Member Since</span>
+                    <!-- Display only; frontend never edits or sends -->
+                    <input type="text"
+                          class="form-control form-control-sm memberSince-input d-none readonly"
+                          placeholder="Member Since"
+                          value="MEMBERSINCE"
+                          title="Member Since"
+                          readonly>
+                  </div>
+
+                  <!-- Birthday -->
+                  <div class="col-md-4">
+                    <label class="form-label text-info mb-0">Birthday</label>
+                    <span class="birthday d-block"></span>
+                    <div class="d-flex gap-1">
+                      <select class="form-select form-select-sm birthday-month-input d-none">
+                        <option value="" disabled selected hidden>Month</option>
+                      </select>
+                      <select class="form-select form-select-sm birthday-day-input d-none">
+                        <option value="" disabled selected hidden>Day</option>
+                      </select>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </fieldset>
+
+          <!-- ===== Buttons ===== -->
+          <div class="d-flex gap-1 mt-2">
+            <button type="button" class="btn btn-warning btn-sm rounded-pill edit-button">
+              <i class="bi bi-pencil me-1"></i> Edit
+            </button>
+            <button type="button" class="btn btn-success btn-sm rounded-pill save-button d-none" disabled>
+              <i class="bi bi-check me-1"></i> Save
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm rounded-pill cancel-button d-none">
+              <i class="bi bi-x me-1"></i> Cancel
+            </button>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-outline-danger btn-sm rounded-pill before-delete-button">Delete</button>
+              <button type="button" class="btn btn-danger btn-sm rounded-pill delete-button d-none">Confirm</button>
+            </div>
+            <button type="button" class="btn btn-info btn-sm rounded-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-envelope"></i> Email
+            </button>
+            <ul class="dropdown-menu email-template-dropdown"></ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </template>
+
+<!-- ===== Email Modal ===== -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="emailModalLabel">📧 Send Email</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="emailForm">
+          <div class="mb-3">
+            <label for="emailTo" class="form-label">To</label>
+            <input type="email" id="emailTo" class="form-control" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="emailSubject" class="form-label">Subject</label>
+            <input type="text" id="emailSubject" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="emailBody" class="form-label">Body</label>
+            <textarea id="emailBody" class="form-control" rows="10"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="sendEmailBtn" class="btn btn-primary">📨 Send Email</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div> <!-- End container -->
+
+<!-- 🧠 Scripts -->
+<script>
+function setupDynamicNavigation() {
+  function activateTabFromHash() {
+    var hash = window.location.hash;
+    if (!hash) return;
+    var targetTabButton = document.querySelector('[data-bs-target="' + hash + '"]');
+    if (targetTabButton) {
+      var tab = new bootstrap.Tab(targetTabButton);
+      tab.show();
+    }
+  }
+  window.onload = function() { activateTabFromHash(); };
+  window.addEventListener('hashchange', activateTabFromHash);
+}
+setupDynamicNavigation();
+
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) document.body.classList.add(theme);
+});
+
+</script>
+
+<script type="module" src="global.js"></script>
+<script type="module" src="admin.js"></script>
+<script src="test5.js"></script>
+</body>
+</html>

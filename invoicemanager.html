@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Manager</title>
+</head>
+
+<style>
+</style>
+
+<body class="theme-dark">
+<div class="watermark"></div>
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<!-- Invoice Management Section -->
+<section class="text-center text-sm-start">
+<div class="container" data-element="main-container">
+  <h2 class="text-center" data-element="page-title">Invoice Management</h2>
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-tabs" id="invoiceTabs">
+  <li class="nav-item">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-search">🔍 Search Invoice</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-view" style="display:none;">✏️ View Invoice</button>
+  </li>
+</ul>
+
+<!-- Template for Search Results -->
+<template id="rowTemplate">
+  <tr class="result-box">
+    <th class="invoiceID" scope="row"></th>
+    <th class="invoiceDate"></th>
+    <th class="firstName"></th>
+    <th class="lastName"></th>
+    <th class="balanceDue"></th>
+    <th class="status"></th>
+  </tr>
+</template>
+
+<!-- Tab Content -->
+<div class="tab-content">
+
+<!-- 🔍 Search Invoices -->
+<div class="tab-pane fade show active" id="tab-search">
+  <div class="input-group my-3">
+    <input type="text" class="form-control" id="searchInput" placeholder="🔍 search...">
+    <div class="input-group-append">
+      <span class="input-group-text" id="searchCounter">🔍</span>
+    </div>
+  </div>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Invoice Date</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Balance Due</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="searchResults"></tbody>
+</table>
+</div>
+
+<!-- ✏️ View Invoice -->
+<div class="tab-pane fade" id="tab-view">
+  <form id="invoiceView" class="my-4">
+    <input type="hidden" id="logID">
+    <input type="hidden" id="qtID">
+    <input type="hidden" id="invoiceID">
+
+    <div class="container"></div>
+      <div class="row g-3 mt-1 mb-1">
+        <div class="col-md-2"><label for="firstName"><b>First Name</b></label><input type="text" class="form-control" id="firstName" readonly></div>
+        <div class="col-md-2"><label for="lastName"><b>Last Name</b></label><input type="text" class="form-control" id="lastName" readonly></div>
+        <div class="col-md-4"><label for="email"><b>Email</b></label><input type="text" class="form-control" id="email" readonly></div>
+      </div>
+      <div class="row g-3 mt-1 mb-1">
+        <div class="col-md-2"><label for="invoiceDate"><b>Invoice Date</b></label><input type="text" class="form-control" id="invoiceDate" readonly></div>
+        <div class="col-md-2"><label for="grandTotal"><b>Invoice Total</b></label><input type="text" class="form-control" id="grandTotal" readonly></div>
+        <div class="col-md-2"><label for="amountPaid"><b>Amount Paid</b></label><input type="text" class="form-control" id="amountPaid" readonly></div>
+        <div class="col-md-2"><label for="status"><b>Status</b></label><input type="text" class="form-control" id="status" readonly></div>
+      </div>
+      <div class="row g-3 mt-1 mb-1">
+        <div class="col-md-2"><label for="balanceDue"><b>Balance Due</b></label><input type="text" class="form-control" id="balanceDue" readonly></div>
+        <div class="col-md-2"><label for="dueDate"><b>Due Date</b></label><input type="text" class="form-control" id="dueDate" readonly></div>
+        <div class="col-md-2"><label for="sendDate"><b>Last Send Date</b></label><input type="text" class="form-control" id="sendDate" readonly></div>
+        <div class="col-md-2"><label for="sendMethod"><b>Last Send Method</b></label><input type="text" class="form-control" id="sendMethod" readonly></div>
+        <div class="col-md-2"><label for="paymentHistory"><b></b></label><input type="hidden" class="form-control" id="paymentHistory" readonly></div>
+      </div>
+    <div class="row g-3 mt-1 mb-1">
+    <div class="col-md-10"><label for="invoiceLogNotes"><b>Log Notes</b></label><input type="text" class="form-control" id="invoiceLogNotes" readonly></div>
+  </div>
+
+  <div class="row g-3 mt-1 mb-1">
+    <div class="d-grid gap-2 d-sm-block mt-2 mb-2">
+      <button type="button" class="btn" id="viewQuoteBtn">📝 View Quote</button>
+      <button type="button" class="btn ms-2 d-none" id="makePaymentBtn">💵 Make Payment</button>
+    </div>
+  </div>
+
+  <div id="paymentPendingAlert" class="alert alert-warning d-none">
+    🕒 Payment is pending. Please follow up.
+  </div>
+  <div id="paidInFullAlert" class="alert alert-success col-md-4 bg-info text-black d-none">
+    ✅ This invoice is paid in full.
+  </div>
+</form>
+</div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentModalLabel">Log Payment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="paymentForm">
+          <input type="hidden" id="paymentLogID">
+          <div class="mb-3">
+            <label class="form-label"></label>
+            <div id="displayBalanceDue" class="form-control-plaintext fw-bold text-danger"></div>
+          </div>
+          <div class="mb-3">
+            <label for="paymentAmount" class="form-label">Making a Payment of</label>
+            <input type="number" class="form-control" id="paymentAmount" step="0.01" min="0" />
+          </div>
+          <div class="mb-3">
+            <label for="paymentMethod" class="form-label">Payment Method</label>
+            <input type="text" class="form-control" id="paymentMethod" list="payment-method-options" required>
+            <datalist id="payment-method-options"></datalist>
+          </div>
+          <div class="mb-3">
+            <label for="paymentDate" class="form-label">Payment Date</label>
+            <input type="date" class="form-control" id="paymentDate" required>
+          </div>
+          <div class="mb-3">
+            <label for="paymentNotes" class="form-label">Notes (optional)</label>
+            <textarea class="form-control" id="paymentNotes" rows="2"></textarea>
+          </div>
+          <button type="button" class="btn" id="submitPaymentBtn">Submit Payment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div> <!-- END tab-content -->
+</section>
+
+<script type="module" src="global.js"></script>
+<!-- <script type="module" src="client.js"></script> -->
+<script type="module" src="admin.js"></script>
+
+<script>
+
+function setupDynamicNavigation() {
+  function activateTabFromHash() {
+    var hash = window.location.hash;
+    if (!hash) return;
+
+    var targetTabButton = document.querySelector('[data-bs-target="' + hash + '"]');
+    if (targetTabButton) {
+      var tab = new bootstrap.Tab(targetTabButton);
+      tab.show();
+    }
+  }
+
+  // Use window.onload for full page load
+  window.onload = function() {
+    activateTabFromHash();  // Ensures tab switch happens after everything is loaded
+  };
+
+  window.addEventListener('hashchange', activateTabFromHash);
+}
+
+setupDynamicNavigation();
+
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) {
+    document.body.classList.add(theme);
+  }
+});
+
+</script>
+
+<script src="config.js"></script> <!-- this has all my glogal functions, variables and constants including scripturl -->
+<script src="invoicemanager.js"></script>
+
+<!-- </script> -->
+
+</body>
+</html>
+

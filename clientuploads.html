@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Client Upload Admin</title>
+</head>
+<body class="page-body" style="min-height: 100vh;" data-element="page-bg">
+<div class="watermark"></div>
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<div class="container mt-3">
+
+  <!-- Client Info -->
+  <div class="row g-2">
+    <div class="col-sm-4">
+      <label for="clientID">Phone</label>
+      <input type="text" class="form-control" list="phone-options" id="clientID">
+      <datalist id="phone-options"></datalist>
+    </div>
+    <div class="col-sm-6">
+      <label for="email">Email</label>
+      <input type="text" readonly class="form-control-plaintext" id="email">
+    </div>
+  </div>
+
+  <div class="row g-2 mt-2">
+    <div class="col-sm-4">
+      <label for="firstName">First Name</label>
+      <input type="text" readonly class="form-control-plaintext" id="firstName">
+    </div>
+    <div class="col-sm-6">
+      <label for="lastName">Last Name</label>
+      <input type="text" readonly class="form-control-plaintext" id="lastName">
+    </div>
+  </div>
+
+  <!-- Email Message -->
+  <div class="row g-2 mt-3">
+    <div class="col-10">
+      <label for="emailMessage">Message to Client</label>
+      <textarea class="form-control" id="emailMessage" rows="4">
+Hello [First Name], Please use the link below to securely upload your files.
+      </textarea>
+    </div>
+  </div>
+
+  <!-- Send Button -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <button class="btn btn-primary" id="sendEmailBtn" disabled>Send Email with Upload Link</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="config.js"></script> <!-- this has all my glogal functions, variables and constants including scripturl -->
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // Populate datalist
+  loadDropdowns();
+
+  const clientIDEl = document.getElementById("clientID");
+  const sendBtn = document.getElementById("sendEmailBtn");
+
+  clientIDEl.addEventListener("change", async function() {
+    const phone = this.value;
+    sendBtn.disabled = !phone;
+
+    if (!phone) return;
+
+    try {
+      const res = await fetch(`${scriptURL}?action=getClientById&clientID=${encodeURIComponent(phone)}`);
+      const client = await res.json();
+
+      if (client.error) {
+        ["firstName","lastName","email"].forEach(id => document.getElementById(id).value = "");
+        document.getElementById("emailMessage").value =
+          "Hello [First Name], Please use the link below to securely upload your files.";
+        return;
+      }
+
+      document.getElementById("firstName").value = client.firstName || "";
+      document.getElementById("lastName").value  = client.lastName || "";
+      document.getElementById("email").value     = client.email || "";
+
+      // Update message with client name
+      document.getElementById("emailMessage").value =
+        `Hello ${client.firstName}, Please use the link below to securely upload your files.`;
+
+    } catch (err) {
+      console.error("Error fetching client:", err);
+      ["firstName","lastName","email"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("emailMessage").value =
+        "Hello [First Name], Please use the link below to securely upload your files.";
+    }
+  });
+
+  // Send email with upload link
+  sendBtn.addEventListener("click", async () => {
+    const phone     = clientIDEl.value;
+    const firstName = document.getElementById("firstName").value;
+    const lastName  = document.getElementById("lastName").value;
+    const email     = document.getElementById("email").value;
+    const message   = document.getElementById("emailMessage").value;
+
+    if (!phone || !email) return showToast("Please select a client first.", "warning");
+
+    // Construct link with all 3 variables encoded
+    const uploadLink = `https://yoursite.com/clientuploadform.html?` +
+                       `clientID=${encodeURIComponent(phone)}` +
+                       `&firstName=${encodeURIComponent(firstName)}` +
+                       `&lastName=${encodeURIComponent(lastName)}` +
+                       `&email=${encodeURIComponent(email)}`;
+
+    const payload = {
+      system: "clientUploads",
+      action: "sendUploadLink",
+      clientID: phone,
+      firstName,
+      lastName,
+      email,
+      message,
+      uploadLink // include full URL for email
+    };
+
+    try {
+      const res = await fetch(`${scriptURL}?action=sendUploadLink`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        showToast("✅ Email sent successfully!", "success");
+      } else {
+        showToast("❌ Failed to send email.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("❌ Error sending email.", "error");
+    }
+  });
+});
+
+// Apply theme
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) document.body.classList.add(theme);
+});
+</script>
+
+</body>
+</html>

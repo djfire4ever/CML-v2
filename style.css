@@ -1,0 +1,16 @@
+/* style.css - stripped to load modular styles */
+
+@import url('./styles/variables.css');
+@import url('./styles/base.css');
+@import url('./styles/layout.css');
+@import url('./styles/forms.css');
+@import url('./styles/components/toast.css');
+@import url('./styles/components/tables.css');
+@import url('./styles/components/nav.css');
+@import url('./styles/components/counter.css');
+@import url('./styles/components/accordion.css');
+@import url('./styles/components/watermark.css');
+
+@import url('./styles/theme.css');           /* shared styling */
+@import url('./styles/theme-variables.css'); /* per-theme vars */
+

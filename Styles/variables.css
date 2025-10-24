@@ -1,0 +1,18 @@
+/* ===============================
+   🎨 SYSTEM DEFAULT VARIABLES
+================================== */
+:root {
+  /* Layout Heights */
+  --header-height: 56px;
+  --footer-height: 22px;
+
+  /* Buttons fallback */
+  --btn-bg: var(--bs-dark);
+  --btn-color: var(--bs-light);
+  --btn-border: var(--bs-dark);
+
+  /* Search results fallback */
+  --result-hover-bg: var(--bs-secondary);
+  --result-hover-color: var(--bs-light);
+}
+

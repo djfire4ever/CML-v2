@@ -1,0 +1,23 @@
+/* ===============================
+   📋 TABLE & RESULTS STYLING
+================================== */
+.result-box {
+  transition: background-color 0.2s ease-in-out;     /* ⏱ Smooth hover effect */
+  cursor: pointer;                                   /* 👆 Clickable rows */
+}
+
+.result-box th,
+.result-box td {
+  font-weight: bold;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+thead th {
+  border-bottom: 2px solid;
+  font-weight: bold;
+  padding: 0.75rem;
+}

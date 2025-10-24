@@ -1,0 +1,92 @@
+/* ===============================
+   🎨 THEME VARIABLES: Test Mode
+================================== */
+body.theme-test {
+  --main-color: yellow;
+  --text-color: green;
+  --border-color: purple;
+  --alt-color: orange;
+  --alt-text-color: blue;
+  --alt-border-color: pink;
+
+  --input-bg: transparent;
+  --search-bg: transparent;
+  --table-hover: var(--alt-color);
+
+  --button-color: var(--main-color);
+  --button-text-color: var(--text-color);
+  --button-border-color: var(--border-color);
+  --alt-button-color: var(--alt-color);
+  --alt-button-text-color: var(--alt-text-color);
+  --alt-button-border-color: var(--border-color);
+}
+
+/* ===============================
+   🎨 THEME VARIABLES: Dark Mode
+================================== */
+body.theme-dark {
+  --test-color: yellow;
+  --main-color: #000;
+  --text-color: #0dcaf0;
+  --border-color: #0dcaf0;
+  --alt-color: #0dcaf0;
+  --alt-text-color: #000;
+  --alt-border-color: #000;
+
+  --input-bg: transparent;
+  --search-bg: transparent;
+  --table-hover: var(--alt-color);
+
+  --button-color: var(--main-color);
+  --button-text-color: var(--text-color);
+  --button-border-color: var(--border-color);
+  --alt-button-color: var(--alt-color);
+  --alt-button-text-color: var(--alt-text-color);
+  --alt-button-border-color: var(--border-color);
+}
+
+/* ===============================
+   🎨 THEME VARIABLES: Pastel Mode
+================================== */
+body.theme-pastel {
+  --main-color: #FFCDD2;
+  --text-color: #E91E63;
+  --border-color: #E91E63;
+  --alt-color: #E91E63;
+  --alt-text-color: #FFCDD2;
+  --alt-border-color: #FFCDD2;
+
+  --input-bg: transparent;
+  --search-bg: transparent;
+  --table-hover: var(--alt-color);
+
+  --button-color: var(--main-color);
+  --button-text-color: var(--text-color);
+  --button-border-color: var(--border-color);
+  --alt-button-color: var(--alt-color);
+  --alt-button-text-color: var(--alt-text-color);
+  --alt-button-border-color: var(--border-color);
+}
+
+/* =======================================
+   🎨 THEME VARIABLES: Classic Mode
+========================================== */
+body.theme-classic {
+  --main-color: #198754;
+  --text-color: #000;
+  --border-color: #000;
+  --alt-color: #000;
+  --alt-text-color: #198754;
+  --alt-border-color: #198754;
+
+  --input-bg: var(--main-color);
+  --search-bg: transparent;
+  --table-hover: var(--alt-color);
+
+  --button-color: var(--main-color);
+  --button-text-color: var(--text-color);
+  --button-border-color: var(--border-color);
+  --alt-button-color: var(--alt-color);
+  --alt-button-text-color: var(--alt-text-color);
+  --alt-button-border-color: var(--border-color);
+}

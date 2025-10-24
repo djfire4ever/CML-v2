@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>📅 FullCalendar Feature Showcase</title>
+<style>
+</style>
+</head>
+<body class="bg-black text-info"></body>
+<!-- ✅ Toast Container -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<!-- ⏳ Loader -->
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center text-primary">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Loading... Please wait...</p>
+  </div>
+</div>
+
+
+  <div class="container py-4 bg-black text-info">
+    <h2 class="text-center mb-4">📅  My Calendar</h2>
+    <div class="card shadow rounded-4">
+      <div class="card-body p-4">
+        <div id="calendar"></div>
+      </div>
+    </div>
+  </div>
+
+<!-- <button class="btn btn-primary" onclick="loginWithGoogle()">Sign in with Google</button> -->
+
+<!-- 📌 Add/Edit Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content shadow rounded-4 bg-black text-info">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEventLabel">Event Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="eventForm" class="row g-3">
+          <input type="hidden" id="eventID">
+          <!-- Event Title -->
+          <div class="col-md-8"><label for="eventTitle" class="form-label">Title</label>
+            <input type="text" class="form-control" id="eventTitle" required></div>
+          <!-- All Day -->
+          <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check"><label class="form-check-label" for="eventAllDay">All Day</label>
+              <input class="form-check-input" type="checkbox" id="eventAllDay"></div>
+          </div>
+          <!-- Start Date/Time -->
+          <div class="form-group col-md-6" id="startDateGroup"><label for="eventStart" class="form-label">Start</label>
+            <input type="datetime-local" class="form-control" id="eventStart" name="eventEnd"></div>
+          <!-- End Date/Time -->
+          <div class="form-group col-md-6" id="endDateGroup"><label for="eventEnd" class="form-label">End</label>
+            <input type="datetime-local" class="form-control" id="eventEnd" name="eventEnd"></div>
+          <!-- Status -->
+          <div class="col-md-4"><label for="eventStatus" class="form-label">Status</label>
+            <select class="form-select" id="eventStatus">
+              <option value="scheduled">Scheduled</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <!-- Category -->
+          <div class="col-md-4"><label for="eventCategory" class="form-label">Category</label>
+            <input type="text" class="form-control" id="eventCategory" placeholder="e.g. Meeting, Delivery"></div>
+          <!-- Color -->
+          <!-- Bootstrap Color Theme with Preview -->
+          <div class="col-md-4">
+            <label for="eventColor" class="form-label">Color</label>
+            <div class="input-group">
+              <select class="form-select" id="eventColor">
+                <option value="">None</option>
+                <option value="primary" selected>Primary</option>
+                <option value="secondary">Secondary</option>
+                <option value="success">Success</option>
+                <option value="danger">Danger</option>
+                <option value="warning">Warning</option>
+                <option value="info">Info</option>
+                <option value="light">Light</option>
+                <!-- <option value="dark">Dark</option> -->
+              </select>
+              <span class="input-group-text bg-primary border border-1" id="colorPreview" style="width: 2.5rem;"></span>
+            </div>
+          </div>
+          <!-- Description -->
+          <div class="col-12"><label for="eventDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="eventDescription" rows="3" placeholder="Enter details..."></textarea></div>
+        </form>
+      </div>
+
+      <div class="modal-footer d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-danger" id="deleteEventBtn" style="display: none;">Delete</button>
+        <button type="submit" class="btn btn-primary" form="eventForm">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="global.js defer"></script>
+<script type="module" src="admin.js"></script>
+<script src="calendar.js"></script>
+
+<script>
+document.getElementById("eventColor").addEventListener("change", function () {
+  const color = this.value;
+  const preview = document.getElementById("colorPreview");
+
+  // Reset any existing bg-* class
+  preview.className = "input-group-text border border-1";
+  
+  if (color) {
+    preview.classList.add(`bg-${color}`);
+  }
+});
+
+function setInitialColorPreview(color) {
+  const colorSelect = document.getElementById("eventColor");
+  const preview = document.getElementById("colorPreview");
+
+  colorSelect.value = color || "";
+  preview.className = "input-group-text border border-1";
+  if (color) preview.classList.add(`bg-${color}`);
+}
+
+</script>
+</body>
+ 
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theme Settings Preview</title>
+<style>
+/* Left side preview buttons container */
+#previewButtonsContainer {
+  position: fixed;
+  bottom: 0%;
+  left: 10px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1050; /* above content but below modals */
+}
+#previewButtonsContainer button {
+  width: 120px;
+}
+</style>
+</head>
+
+<div class="watermark"></div>
+<body class="page-body" style="min-height: 100vh;" data-element="page-bg">
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" data-element="toast-container"></div>
+
+<div class="container my-5" data-element="main-container">
+
+<div id="themePreviewLabel" class="text-center fw-bold py-2 rounded" data-element="page-header" style="font-size: 2rem;">Theme: System Default</div>
+
+<!-- ⏳ Loader -->
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<!-- 🧭 Navigation Tabs -->
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-search" type="button" role="tab" aria-selected="true">🔍 Search</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-add" type="button" role="tab" aria-selected="false">➕ Add</button>
+  </li>
+</ul>
+
+<!-- 📁 Tab Content -->
+<div class="tab-content p-3 rounded" data-element="tab-content">
+
+  <!-- 🔍 Search Tab -->
+<div class="tab-pane fade show active result-box" id="tab-search" role="tabpanel">
+  <div class="input-group mb-3">
+    <input type="text" class="form-control" id="searchInput" placeholder="🔍 search..." data-element="search-input-box">
+      <span class="counter" id="searchCounter" data-element="search-counter">1 Clients Found of</span>
+      <span class="counter" id="totalCounter" data-element="search-counter">999 Total Clients</span>
+  </div>
+  
+  <table class="table table-hover fw-bold">
+    <tbody>
+      <tr>
+        <td>555-1234</td><td>John</td><td>Doe</td><td>Ray</td>
+        <td>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm delete-button d-none">Confirm</button>
+            <button type="button" class="btn btn-sm before-delete-button" data-button-state="delete">Delete</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ➕ Add Tab -->
+<div class="tab-pane fade" id="tab-add" role="tabpanel">
+  <form class="row g-3">
+    <div class="col-sm-4"><label class="form-label fw-bold">First Name</label><input type="text" class="form-control" value="John" readonly></div>
+    <div class="col-sm-4"><label class="form-label fw-bold">Last Name</label><input type="text" class="form-control" value="Doe" readonly></div>
+    <div class="col-sm-4"><label class="form-label fw-bold">Type</label><input type="text" class="form-control" id="productType" list="product-type-options-edit" placeholder="Select Type">
+      <datalist id="product-type-options-edit"></datalist>
+    </div>
+  </form>
+</div>
+</div>
+
+<!-- Accordion with mock info -->
+<div class="accordion mt-4" id="clientAccordion">
+  <div class="accordion-item border-info">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+        <i class="fa-solid fa-user me-2"></i>
+        <span class="badge fs-6 ms-2">John Doe</span>
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#clientAccordion">
+      <div class="accordion-body">
+        <div class="row g-3">
+          <div class="col-sm-12"><label for="add-phone">Phone</label><input type="text" class="form-control" list="phone-options" id="add-phone">
+            <datalist id="phone-options"></datalist></div>
+          </div>
+        <div class="row g-3">
+          <div class="col-sm-6"><label for="add-firstName">First Name</label><input type="text" readonly class="form-control-plaintext" id="add-firstName"></div>
+          <div class="col-sm-6"><label for="add-lastName">Last Name</label><input type="text" readonly class="form-control-plaintext" id="add-lastName"></div>
+          <div class="col-sm-12"><label for="add-email">Email</label><input type="text" readonly class="form-control-plaintext" id="add-email"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- 🔔 Alert Preview -->
+<div class="container">
+  <div id="alertPreview" class="alert alert-info mt-4 d-none" role="alert">
+    This is a preview alert!
+  </div>
+</div>
+
+  <!-- Modal -->
+<div class="modal fade" id="mockPreviewModal" tabindex="-1" aria-labelledby="mockPreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mockPreviewModalLabel">Modal Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="mockLogActionForm">
+          <div class="mb-3"><label for="mockActionType" class="form-label">Action Type</label>
+            <select class="form-select" id="mockActionType">
+              <option value="call">Call</option>
+              <option value="email">Email</option>
+              <option value="followup">Follow Up</option>
+              <option value="meeting">Meeting</option>
+            </select>
+          </div>
+          <div class="mb-3"><label for="mockActionNotes" class="form-label">Notes</label><textarea class="form-control" id="mockActionNotes" rows="3"></textarea></div>
+          <div class="mb-3"><label for="mockCustomFollowUp" class="form-label">Override Follow-Up Interval (Days)</label><input type="number" class="form-control" id="mockCustomFollowUp" min="1" value="7" placeholder="Enter days"></div>
+          <button type="button" class="btn">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Left side preview buttons -->
+<div id="previewButtonsContainer">
+  <button id="btnPreviewToast" type="button" class="btn btn-sm">Preview Toast</button>
+  <button id="btnPreviewAlert" type="button" class="btn btn-sm">Preview Alert</button>
+  <button id="btnPreviewModal" type="button" class="btn btn-sm">Preview Modal</button>
+</div>
+
+<!-- Theme selector and apply button unchanged -->
+<button id="globalApplyButton" class="btn" data-element="theme-button" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000;">
+  ✅ Apply All Saved Customizations</button>
+
+<div style="position: fixed; bottom: 20px; right: 20px; z-index: 10001; background: transparent; margin-right: .3%; margin-bottom: 3%; padding: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+  <label for="themeSelector" class="fw-bold">🎨 Select from these themes:</label>
+  <select id="themeSelector" class="form-select form-select-sm mt-1">
+    <optgroup label="Predefined Themes" id="predefinedThemes">
+      <option value="theme-classic">Classic</option>
+      <option value="theme-pastel">Pastel</option>
+      <option value="theme-dark">Dark</option>
+      <option value="theme-test">Test</option>
+      <option value="no-theme">No Theme (Use System Defaults)</option>
+    </optgroup>
+    <optgroup label="Custom Themes" id="customThemes">
+    <!-- Will be dynamically populated -->
+    </optgroup>
+  </select>
+</div>
+
+<script type="module" src="global.js"></script>
+<!-- <script type="module" src="client.js"></script> -->
+<script type="module" src="admin.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 🔁 Toggle Delete / Cancel Button
+  const deleteBtn = document.querySelector('.before-delete-button');
+  const confirmBtn = document.querySelector('.delete-button');
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isDelete = deleteBtn.dataset.buttonState === 'delete';
+      confirmBtn.classList.toggle('d-none', !isDelete);
+      deleteBtn.textContent = isDelete ? 'Cancel' : 'Delete';
+      deleteBtn.dataset.buttonState = isDelete ? 'cancel' : 'delete';
+    });
+
+  // 🔔 Alert Preview
+  const alertDiv = document.getElementById('alertPreview');
+  const alertBtn = document.getElementById('btnPreviewAlert');
+  alertDiv.classList.add('d-none'); // Hide on load
+  alertBtn.addEventListener('click', () => {
+    alertDiv.classList.remove('d-none');
+    setTimeout(() => alertDiv.classList.add('d-none'), 4000);
+  });
+
+// ✅ Toast Preview
+document.getElementById('btnPreviewToast').addEventListener('click', () => {
+  showToast('✅ This is a toast preview', 'success');
+});
+
+// 🪟 Modal Preview
+document.getElementById('btnPreviewModal').addEventListener('click', () => {
+  const modal = new bootstrap.Modal(document.getElementById('mockPreviewModal'));
+  modal.show();
+});
+
+// 🧪 Bootstrap Tab Logging
+document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(btn => {
+  btn.addEventListener('shown.bs.tab', (event) => {
+    console.log('Bootstrap tab activated:', event.target);
+  });
+});
+
+// 🎨 Theme Handling
+const themeSelector = document.getElementById('themeSelector');
+const applyButton = document.getElementById('globalApplyButton');
+const body = document.body;
+const previewLabel = document.getElementById('themePreviewLabel');
+
+function formatThemeName(theme) {
+  return theme === 'no-theme'
+    ? 'System Default'
+    : theme
+        .replace('theme-', '')
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+function clearThemeClasses() {
+  body.classList.forEach(cls => {
+    if (cls.startsWith('theme-')) {
+      body.classList.remove(cls);
+    }
+  });
+}
+
+function applyTheme(theme) {
+  clearThemeClasses();
+  void body.offsetWidth; // reflow
+  if (theme !== 'no-theme') {
+    body.classList.add(theme);
+  }
+  previewLabel.textContent = `Theme Preview: ${formatThemeName(theme)}`;
+}
+
+  const storedTheme = localStorage.getItem('selectedTheme') || 'no-theme';
+  themeSelector.value = storedTheme;
+  applyTheme(storedTheme);
+
+  themeSelector.addEventListener('change', () => {
+    applyTheme(themeSelector.value);
+  });
+
+  applyButton.addEventListener('click', () => {
+    const selected = themeSelector.value || 'no-theme';
+    localStorage.setItem('selectedTheme', selected);
+    showToast(`✅ "${formatThemeName(selected)}" applied to all pages.`, 'success');
+  });
+
+    loadDropdowns();
+  });
+</script>
+
+</body>
+</html>

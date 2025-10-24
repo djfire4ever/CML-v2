@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Manager</title>
+</head>
+<style>
+  /* Modern button hover/focus effects */
+.client-row .btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.client-row .btn:hover, 
+.client-row .btn:focus {
+  transform: translateY(-2px);       /* slight lift */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* subtle shadow */
+}
+.bg-bronze {
+  background-color: #cd7f32 !important; /* Bronze */
+}
+
+</style>
+
+<body class="page-body" style="min-height:100vh;" data-element="page-bg">
+<!-- 💧 Watermark -->
+<div class="watermark"></div>
+<!-- 🔔 Toast Notifications -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<!-- ⏳ Loader -->
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<div class="container" data-element="main-container">
+  <h2 class="text-center mb-3" data-element="page-title">Client Management</h2>
+
+  <!-- 🔍 Search + Counters -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="input-group w-50">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search clients...">
+    </div>
+    <div class="d-flex gap-3">
+      <span class="badge bg-primary">Total: <span id="totalCounter">0</span></span>
+      <!-- <span class="badge bg-success">Active: <span id="activeCounter">0</span></span> -->
+      <span class="badge bg-danger">Found: <span id="searchCounter">0</span></span>
+    </div>
+    <button id="clearTierFilterBtn" class="btn btn-sm btn-outline-light ms-2">Show All</button>
+  </div>
+
+  <!-- 🔍 Accordion for Clients -->
+  <div class="accordion" id="clientsAccordion">
+
+    <!-- ➕ Add New Client Accordion Card -->
+    <div class="accordion-item border-info">
+      <h2 class="accordion-header" id="heading-addClient">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-addClient" aria-expanded="false" aria-controls="collapse-addClient">
+          ➕ Add New Client
+        </button>
+      </h2>
+      <div id="collapse-addClient" class="accordion-collapse collapse" aria-labelledby="heading-addClient" data-bs-parent="#clientsAccordion">
+        <div class="accordion-body">
+          <form id="addClientFormAccordion">
+
+            <!-- ===== Clients Name Section ===== -->
+            <fieldset class="mb-1 p-2 border rounded border-info">
+              <legend class="small fw-bold">Clients Name</legend>
+              <div class="row gx-3 gy-1 align-items-center mt-2">
+                <div class="col-md-6">
+                  <label for="firstName">First Name</label>
+                  <input type="text" class="form-control form-control-sm" id="firstName">
+                </div>
+                <div class="col-md-6">
+                  <label for="lastName">Last Name</label>
+                  <input type="text" class="form-control form-control-sm" id="lastName">
+                </div>
+              </div>
+              <div class="row gx-3 gy-1 align-items-center mt-1">
+                <div class="col-md-6">
+                  <label for="nickName">Nick Name</label>
+                  <input type="text" class="form-control form-control-sm" id="nickName">
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ===== Contact Information Section ===== -->
+            <fieldset class="mb-1 p-2 border rounded border-info">
+              <legend class="small fw-bold">Contact Info</legend>
+              <div class="row gx-3 gy-1 align-items-center mt-2">
+                <div class="col-md-6">
+                  <label for="clientID">Phone</label>
+                  <input type="text" class="form-control form-control-sm" id="clientID">
+                </div>
+                <div class="col-md-6">
+                  <label for="email">Email</label>
+                  <input type="email" class="form-control form-control-sm" id="email">
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ===== Physical Address Section ===== -->
+            <fieldset class="mb-1 p-2 border rounded border-info">
+              <legend class="small fw-bold">Physical Address</legend>
+              <div class="row gx-3 gy-1 align-items-center mt-2">
+                <div class="col-md-12">
+                  <label for="street">Street</label>
+                  <input type="text" class="form-control form-control-sm" id="street">
+                </div>
+              </div>
+              <div class="row gx-3 gy-1 align-items-center mt-1">
+                <div class="col-md-6">
+                  <label for="city">City</label>
+                  <input type="text" class="form-control form-control-sm" id="city">
+                </div>
+                <div class="col-md-2">
+                  <label for="state">State</label>
+                  <input type="text" class="form-control form-control-sm" id="state">
+                </div>
+                <div class="col-md-4">
+                  <label for="zip">Zip</label>
+                  <input type="number" class="form-control form-control-sm" id="zip">
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ===== Buttons ===== -->
+            <div class="d-flex gap-1 mt-2">
+              <button type="submit" class="btn btn-success btn-sm rounded-pill">
+                <i class="bi bi-check me-1"></i> Save
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm rounded-pill" id="addCancelBtn">
+                <i class="bi bi-x me-1"></i> Cancel
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End clientsAccordion -->
+
+  
+  <!-- 🔍 Search Results Accordion -->
+  <div class="accordion mt-3" id="clientsSearchResults"></div>
+
+  <!-- Template for dynamic client rows -->
+  <template id="rowTemplate">
+    <div class="accordion-item client-row border-info">
+      <h2 class="accordion-header" id="heading-CLIENTID">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-CLIENTID" aria-expanded="false" aria-controls="collapse-CLIENTID">
+          <span class="client-name">CLIENTNAME</span>
+        </button>
+      </h2>
+      <div id="collapse-CLIENTID" class="accordion-collapse collapse" aria-labelledby="heading-CLIENTID" data-bs-parent="#clientsSearchResults">
+        <div class="accordion-body">
+          <div class="container">
+
+            <!-- ===== Clients Name Section ===== -->
+            <fieldset class="mb-1 p-2 border rounded border-info">
+              <div class="d-flex justify-content-between align-items-center">
+                <!-- Legend / client name -->
+                <legend class="small fw-bold mb-0">Clients Name</legend>
+
+                <!-- Tier read-only badge -->
+                <span class="tier badge bg-secondary" data-tier-id="TIERID">TIERSHOW</span>
+
+                <!-- Tier selector dropdown (hidden initially) -->
+                <select class="form-select form-select-sm tier-input d-none" title="Select tier" style="width: auto;">
+                  <option value="New">New</option>
+                  <option value="Bronze">Bronze</option>
+                  <option value="Silver">Silver</option>
+                  <option value="Gold">Gold</option>
+                  <option value="Platinum">Platinum</option>
+                </select>
+              </div>
+
+              <!-- Name fields below -->
+              <div class="row gx-3 gy-1 align-items-center mt-2">
+                <div class="col-md-6">
+                  <span class="firstName">FIRSTNAME</span>
+                  <input type="text" class="form-control form-control-sm firstName-input d-none"
+                    placeholder="First name" value="FIRSTNAME" title="Enter first name">
+                </div>
+                <div class="col-md-6">
+                  <span class="lastName">LASTNAME</span>
+                  <input type="text" class="form-control form-control-sm lastName-input d-none"
+                    placeholder="Last name" value="LASTNAME" title="Enter last name">
+                </div>
+              </div>
+
+              <div class="row gx-3 gy-1 align-items-center mt-1">
+                <div class="col-md-6">
+                  <span class="nickName">NICKNAME</span>
+                  <input type="text" class="form-control form-control-sm nickName-input d-none"
+                    placeholder="Nickname (optional)" value="NICKNAME" title="Optional nickname">
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ===== Contact Information Section ===== -->
+            <fieldset class="mb-1 p-2 border rounded border-info">
+              <legend class="small fw-bold">Contact Info</legend>
+              <div class="row gx-3 gy-1 align-items-center mt-2">
+                <div class="col-md-6">
+                  <span class="clientID">PHONE</span>
+                  <input type="text" class="form-control form-control-sm clientID-input d-none"
+                    placeholder="digits only" value="PHONE" title="Phone number required">
+                </div>
+                <div class="col-md-6">
+                  <span class="email">EMAIL</span>
+                  <input type="email" class="form-control form-control-sm email-input d-none"
+                    placeholder="email@example.com" value="EMAIL" title="Valid email required">
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ===== Physical Address Section ===== -->
+            <fieldset class="mb-1 p-2 border rounded border-info">
+              <legend class="small fw-bold">Physical Address</legend>
+              <div class="row gx-3 gy-1 align-items-center mt-2">
+                <div class="col-md-12">
+                  <span class="street">STREET</span>
+                  <input type="text" class="form-control form-control-sm street-input d-none"
+                    placeholder="123 Main St" value="STREET" title="Street address required">
+                </div>
+              </div>
+              <div class="row gx-3 gy-1 align-items-center mt-1">
+                <div class="col-md-6">
+                  <span class="city">CITY</span>
+                  <input type="text" class="form-control form-control-sm city-input d-none"
+                    placeholder="City" value="CITY" title="City required">
+                </div>
+                <div class="col-md-2">
+                  <span class="state">STATE</span>
+                  <input type="text" class="form-control form-control-sm state-input d-none"
+                    placeholder="ST" value="STATE" title="State required">
+                </div>
+                <div class="col-md-4">
+                  <span class="zip">ZIP</span>
+                  <input type="text" class="form-control form-control-sm zip-input d-none"
+                    placeholder="12345" value="ZIP" title="Zip code required">
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ===== Buttons ===== -->
+            <div class="d-flex gap-1 mt-2">
+              <!-- Edit button -->
+              <button type="button" class="btn btn-warning btn-sm rounded-pill edit-button" data-bs-toggle="tooltip" title="Edit">
+                <i class="bi bi-pencil me-1"></i> Edit
+              </button>
+              <!-- Save button (hidden initially) -->
+              <button type="button" class="btn btn-success btn-sm rounded-pill save-button d-none" data-bs-toggle="tooltip" title="Save">
+                <i class="bi bi-check me-1"></i> Save
+              </button>
+              <!-- Cancel button (hidden initially) -->
+              <button type="button" class="btn btn-secondary btn-sm rounded-pill cancel-button d-none" data-bs-toggle="tooltip" title="Cancel">
+                <i class="bi bi-x me-1"></i> Cancel
+              </button>
+              <!-- Confirm Delete button (hidden initially) -->
+              <button type="button" class="btn btn-danger btn-sm rounded-pill delete-button d-none" data-bs-toggle="tooltip" title="Confirm Delete">
+                <i class="bi bi-trash me-1"></i> Confirm
+              </button>
+              <!-- Initial Delete button -->
+              <button type="button" class="btn btn-outline-danger btn-sm rounded-pill before-delete-button" data-button-state="delete" data-bs-toggle="tooltip" title="Delete">
+                <i class="bi bi-trash me-1"></i> Delete
+              </button>
+            <!-- Email Dropdown -->
+              <button type="button" class="btn btn-info btn-sm rounded-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-envelope"></i> Email
+              </button>
+              <ul class="dropdown-menu email-template-dropdown">
+                <!-- Populated dynamically by JS -->
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+<!-- ===== Email Modal ===== -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="emailModalLabel">📧 Send Email</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="emailForm">
+          <div class="mb-3">
+            <label for="emailTo" class="form-label">To</label>
+            <input type="email" id="emailTo" class="form-control" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="emailSubject" class="form-label">Subject</label>
+            <input type="text" id="emailSubject" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="emailBody" class="form-label">Body</label>
+            <textarea id="emailBody" class="form-control" rows="10"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="sendEmailBtn" class="btn btn-primary">📨 Send Email</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div> <!-- End container -->
+
+<!-- 🧠 Scripts -->
+<script>
+function setupDynamicNavigation() {
+  function activateTabFromHash() {
+    var hash = window.location.hash;
+    if (!hash) return;
+    var targetTabButton = document.querySelector('[data-bs-target="' + hash + '"]');
+    if (targetTabButton) {
+      var tab = new bootstrap.Tab(targetTabButton);
+      tab.show();
+    }
+  }
+  window.onload = function() { activateTabFromHash(); };
+  window.addEventListener('hashchange', activateTabFromHash);
+}
+setupDynamicNavigation();
+
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) document.body.classList.add(theme);
+});
+
+</script>
+
+<script type="module" src="global.js"></script>
+<!-- <script type="module" src="client.js"></script> -->
+<script type="module" src="admin.js"></script>
+<script src="clientmanagerglobaltest.js"></script>
+</body>
+</html>

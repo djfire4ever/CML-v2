@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Manager</title>
+</head>
+<style>
+  /* Modern button hover/focus effects */
+.client-row .btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.client-row .btn:hover, 
+.client-row .btn:focus {
+  transform: translateY(-2px);       /* slight lift */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* subtle shadow */
+}
+.bg-bronze {
+  background-color: #cd7f32 !important; /* Bronze */
+}
+
+</style>
+
+<body class="page-body" style="min-height:100vh;" data-element="page-bg">
+<!-- 💧 Watermark -->
+<div class="watermark"></div>
+<!-- 🔔 Toast Notifications -->
+<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<!-- ⏳ Loader -->
+<div id="loadingOverlay" class="d-none">
+  <div class="text-center">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-4">Loading... Please wait...</p>
+  </div>
+</div>
+
+<div class="container" data-element="main-container">
+  <h2 class="text-center mb-3" data-element="page-title">Client Management</h2>
+
+  <!-- 🔍 Search + Counters -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="input-group w-50">
+      <input type="text" id="searchInput" class="form-control" placeholder="Search clients...">
+    </div>
+    <div class="d-flex gap-3">
+      <span class="badge bg-primary">Total: <span id="totalCounter">0</span></span>
+      <!-- <span class="badge bg-success">Active: <span id="activeCounter">0</span></span> -->
+      <span class="badge bg-danger">Found: <span id="searchCounter">0</span></span>
+    </div>
+    <button id="clearTierFilterBtn" class="btn btn-sm btn-outline-light ms-2">Show All</button>
+  </div>
+
+  <!-- 🔍 Accordion for Clients -->
+  <div class="accordion" id="clientsAccordion">
+
+    <!-- ➕ Add New Client Accordion Card -->
+    <div class="accordion-item border-info">
+      <h2 class="accordion-header" id="heading-addClient">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-addClient" aria-expanded="false" aria-controls="collapse-addClient">
+          ➕ Add New Client
+        </button>
+      </h2>
+      <div id="collapse-addClient" class="accordion-collapse collapse" aria-labelledby="heading-addClient" data-bs-parent="#clientsAccordion">
+        <div class="accordion-body">
+          <form id="addClientFormAccordion">
+
+            <!-- ===== Unified Client Information Section ===== -->
+            <fieldset id="clientInfoFieldset" class="mb-2 p-2 border rounded border-info">
+              <legend class="small fw-bold">Client Information</legend>
+
+              <div class="d-flex flex-wrap justify-content-start align-items-start gap-3">
+
+                <!-- Left Column: Icon Background + Client Name -->
+                <div id="clientIconColumn" class="position-relative d-flex flex-column justify-content-center align-items-center border rounded shadow-sm"
+                    style="width:250px; height:250px; overflow:hidden; background-color:#f8f9fa;">
+
+                  <!-- Icon Background -->
+                  <i class="fa-sharp fa-light fa-award position-absolute text-info"
+                    style="font-size:14rem; opacity:0.15; z-index:0;"></i>
+
+                  <!-- Overlay Inputs -->
+                  <div class="position-relative z-1 w-100 px-3">
+                    <div class="mb-2">
+                      <label for="firstName" class="form-label text-info mb-0">First Name</label>
+                      <input type="text" class="form-control form-control-sm" id="firstName" placeholder="Enter first name">
+                    </div>
+                    <div class="mb-2">
+                      <label for="lastName" class="form-label text-info mb-0">Last Name</label>
+                      <input type="text" class="form-control form-control-sm" id="lastName" placeholder="Enter last name">
+                    </div>
+                    <div>
+                      <label for="nickName" class="form-label text-info mb-0">Nick Name</label>
+                      <input type="text" class="form-control form-control-sm" id="nickName" placeholder="Enter nickname">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column: Contact + Address Fields -->
+                <div id="clientDetailsColumn" class="d-flex flex-column flex-grow-1" style="min-width:400px;">
+
+                  <!-- Contact Info -->
+                  <div class="d-flex align-items-center mb-2">
+                    <label for="clientPhone" class="form-label text-info mb-0 me-2" style="width:80px;">Phone</label>
+                    <input type="text" class="form-control form-control-sm" id="clientPhone" placeholder="(555) 123-4567">
+                  </div>
+                  <div class="d-flex align-items-center mb-3">
+                    <label for="clientEmail" class="form-label text-info mb-0 me-2" style="width:80px;">Email</label>
+                    <input type="email" class="form-control form-control-sm" id="clientEmail" placeholder="client@example.com">
+                  </div>
+
+                  <!-- Address -->
+                  <div class="mb-2">
+                    <label for="street" class="form-label text-info mb-1">Street</label>
+                    <input type="text" class="form-control form-control-sm" id="street" placeholder="123 Main St">
+                  </div>
+
+                  <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                      <label for="city" class="form-label text-info mb-0">City</label>
+                      <input type="text" class="form-control form-control-sm" id="city">
+                    </div>
+                    <div style="width:90px;">
+                      <label for="state" class="form-label text-info mb-0">State</label>
+                      <input type="text" class="form-control form-control-sm" id="state">
+                    </div>
+                    <div style="width:120px;">
+                      <label for="zip" class="form-label text-info mb-0">Zip</label>
+                      <input type="number" class="form-control form-control-sm" id="zip">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- ===== Buttons ===== -->
+            <div class="d-flex gap-1 mt-2">
+              <button type="submit" class="btn btn-success btn-sm rounded-pill">
+                <i class="bi bi-check me-1"></i> Save
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm rounded-pill" id="addCancelBtn">
+                <i class="bi bi-x me-1"></i> Cancel
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End clientsAccordion -->
+
+  
+  <!-- 🔍 Search Results Accordion -->
+  <div class="accordion mt-3" id="clientsSearchResults"></div>
+
+  <!-- Template for dynamic client rows -->
+  <template id="rowTemplate">
+    <div class="accordion-item client-row border-info">
+      <h2 class="accordion-header" id="heading-CLIENTID">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-CLIENTID" aria-expanded="false" aria-controls="collapse-CLIENTID">
+          <span class="client-name">CLIENTNAME</span>
+        </button>
+      </h2>
+      <div id="collapse-CLIENTID" class="accordion-collapse collapse" aria-labelledby="heading-CLIENTID" data-bs-parent="#clientsSearchResults">
+        <div class="accordion-body">
+          <div class="container">
+
+            <!-- ===== Unified Client Information Fieldset (Single) ===== -->
+            <fieldset id="clientInfoFieldset" class="mb-2 p-2 border rounded border-info">
+
+              <div class="d-flex flex-wrap justify-content-start align-items-start gap-4">
+
+                <!-- Left Column: Icon Background + Name Fields + Tier Dropdown -->
+                <div id="clientIconColumn"
+                    class="position-relative d-flex flex-column justify-content-center align-items-center ps-1 pe-3 rounded border-end border-2 border-info shadow"
+                    style="width:250px; min-height:220px; overflow:hidden; background:rgba(255,255,255,0.02);">
+
+                  <!-- Background Icon -->
+                  <i class="bi bi-award position-absolute"
+                    style="
+                      color:rgba(0, 180, 255, 0.15);
+                      font-size:13rem;
+                      top:50%;
+                      left:50%;
+                      transform:translate(-50%, -50%);
+                      pointer-events:none;
+                      z-index:0;
+                    "></i>
+
+                  <!-- Foreground: Client Name Fields -->
+                  <div class="position-relative z-1 w-100 mt-2 d-flex flex-column justify-content-center align-items-center text-warning">
+
+                    <!-- First Name -->
+                    <div class="mb-1 text-center w-100">
+                      <span class="firstName d-block mb-2 fw-bold fs-5">FIRSTNAME</span>
+                      <input type="text" class="form-control form-control-sm firstName-input d-none"
+                            placeholder="First name" value="FIRSTNAME" title="Enter first name">
+                    </div>
+
+                    <!-- Nick Name -->
+                    <div class="mb-1 text-center w-100">
+                      <span class="nickName d-block mb-2 fw-bold fs-5">"NICKNAME"</span>
+                      <input type="text" class="form-control form-control-sm nickName-input d-none"
+                            placeholder="Nickname (optional)" value="NICKNAME" title="Optional nickname">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="mb-1 text-center w-100">
+                      <span class="lastName d-block fw-bold fs-5">LASTNAME</span>
+                      <input type="text" class="form-control form-control-sm lastName-input d-none"
+                            placeholder="Last name" value="LASTNAME" title="Enter last name">
+                    </div>
+                  </div>
+
+                  <!-- Tier Dropdown (permanent, bottom) -->
+                  <div class="mt-auto w-100 px-1 mb-2 text-center text-warning">
+                    <span class="tier d-none" data-tier-id="0">New</span>
+                    <select class="form-select form-select-sm tier-input d-none" title="Select tier" style="width:100%;">
+                      <option value="New">New</option>
+                      <!-- <option value="Bronze">Bronze</option> -->
+                      <option value="Silver">Silver</option>
+                      <option value="Gold">Gold</option>
+                      <option value="Platinum">Platinum</option>
+                    </select>
+                  </div>
+
+                </div>
+
+                <!-- Right Column: All other fields (unified) -->
+                <div id="clientDetailsColumn" class="d-flex flex-column flex-grow-1 ps-3" style="width:220px;">
+
+                  <div class="row gx-3 gy-3 text-warning">
+
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                      <label class="form-label text-info mb-0" for="clientID">Phone</label>
+                      <span class="clientID d-block">PHONE</span>
+                      <input type="text" class="form-control form-control-sm clientID-input d-none"
+                            placeholder="digits only" value="PHONE" title="Phone number required">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                      <label class="form-label text-info mb-0" for="email">Email</label>
+                      <span class="email d-block">EMAIL</span>
+                      <input type="email" class="form-control form-control-sm email-input d-none"
+                            placeholder="email@example.com" value="EMAIL" title="Valid email required">
+                    </div>
+
+                    <!-- Street -->
+                    <div class="col-md-12">
+                      <label class="form-label text-info mb-0" for="street">Street</label>
+                      <span class="street d-block">STREET</span>
+                      <input type="text" class="form-control form-control-sm street-input d-none"
+                            placeholder="123 Main St" value="STREET" title="Street address required">
+                    </div>
+
+                    <!-- City / State / Zip -->
+                    <div class="col-md-6">
+                      <label class="form-label text-info mb-0" for="city">City</label>
+                      <span class="city d-block">CITY</span>
+                      <input type="text" class="form-control form-control-sm city-input d-none"
+                            placeholder="City" value="CITY" title="City required">
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label text-info mb-0" for="state">State</label>
+                      <span class="state d-block">STATE</span>
+                      <input type="text" class="form-control form-control-sm state-input d-none"
+                            placeholder="ST" value="STATE" title="State required">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label text-info mb-0" for="zip">Zip</label>
+                      <span class="zip d-block">ZIP</span>
+                      <input type="text" class="form-control form-control-sm zip-input d-none"
+                            placeholder="12345" value="ZIP" title="Zip code required">
+                    </div>
+
+                    <!-- Memb Since -->
+                    <div class="col-md-4">
+                      <span class="memberSince d-block">Member Since</span>
+                      <input type="text" class="form-control form-control-sm memberSince-input d-none readonly"
+                            placeholder="Member Since" value="MEMBERSINCE" title="Member Since">
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </fieldset>
+
+            <!-- ===== Buttons ===== -->
+            <div class="d-flex gap-1 mt-2">
+              <!-- Edit button -->
+              <button type="button" class="btn btn-warning btn-sm rounded-pill edit-button" data-bs-toggle="tooltip" title="Edit">
+                <i class="bi bi-pencil me-1"></i> Edit
+              </button>
+              <!-- Save button (hidden initially) -->
+              <button type="button" class="btn btn-success btn-sm rounded-pill save-button d-none" data-bs-toggle="tooltip" title="Save">
+                <i class="bi bi-check me-1"></i> Save
+              </button>
+              <!-- Cancel button (hidden initially) -->
+              <button type="button" class="btn btn-secondary btn-sm rounded-pill cancel-button d-none" data-bs-toggle="tooltip" title="Cancel">
+                <i class="bi bi-x me-1"></i> Cancel
+              </button>
+              <!-- Confirm Delete button (hidden initially) -->
+              <button type="button" class="btn btn-danger btn-sm rounded-pill delete-button d-none" data-bs-toggle="tooltip" title="Confirm Delete">
+                <i class="bi bi-trash me-1"></i> Confirm
+              </button>
+              <!-- Initial Delete button -->
+              <button type="button" class="btn btn-outline-danger btn-sm rounded-pill before-delete-button" data-button-state="delete" data-bs-toggle="tooltip" title="Delete">
+                <i class="bi bi-trash me-1"></i> Delete
+              </button>
+            <!-- Email Dropdown -->
+              <button type="button" class="btn btn-info btn-sm rounded-pill dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-envelope"></i> Email
+              </button>
+              <ul class="dropdown-menu email-template-dropdown">
+                <!-- Populated dynamically by JS -->
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+<!-- ===== Email Modal ===== -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="emailModalLabel">📧 Send Email</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="emailForm">
+          <div class="mb-3">
+            <label for="emailTo" class="form-label">To</label>
+            <input type="email" id="emailTo" class="form-control" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="emailSubject" class="form-label">Subject</label>
+            <input type="text" id="emailSubject" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="emailBody" class="form-label">Body</label>
+            <textarea id="emailBody" class="form-control" rows="10"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="sendEmailBtn" class="btn btn-primary">📨 Send Email</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div> <!-- End container -->
+
+<!-- 🧠 Scripts -->
+<script>
+function setupDynamicNavigation() {
+  function activateTabFromHash() {
+    var hash = window.location.hash;
+    if (!hash) return;
+    var targetTabButton = document.querySelector('[data-bs-target="' + hash + '"]');
+    if (targetTabButton) {
+      var tab = new bootstrap.Tab(targetTabButton);
+      tab.show();
+    }
+  }
+  window.onload = function() { activateTabFromHash(); };
+  window.addEventListener('hashchange', activateTabFromHash);
+}
+setupDynamicNavigation();
+
+window.addEventListener('DOMContentLoaded', () => {
+  const theme = localStorage.getItem('selectedTheme');
+  if (theme) document.body.classList.add(theme);
+});
+
+</script>
+
+<script type="module" src="global.js"></script>
+<script type="module" src="admin.js"></script>
+<script src="clientmanager.js"></script>
+</body>
+</html>

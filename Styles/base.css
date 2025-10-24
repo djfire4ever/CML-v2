@@ -1,0 +1,37 @@
+/* ===============================
+   🌐 GLOBAL RESET & BASE STYLES
+================================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  font-family: "Courgette", cursive;
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+  position: relative;
+}
+
+.container,
+.section,
+.tab-pane,
+.tab-content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ===============================
+   🔲 HEADER & FOOTER PLACEHOLDERS
+================================== */
+#header-placeholder {
+  height: var(--header-height);
+  flex-shrink: 0;
+}
+
+#footer-placeholder {
+  height: var(--footer-height);
+  flex-shrink: 0;
+}
+
